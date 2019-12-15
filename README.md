@@ -7,9 +7,7 @@ guava-libraries 用户指南中文翻译（值此翻译时，Guava的版本为17
 
 官方用户指南：https://code.google.com/p/guava-libraries/wiki/GuavaExplained
 
-由于英语不是很好，某些地方为方便理解可能用比较白话的文字而不是原版的直接翻译，若有错误，欢迎在issues中指出。
-
-__非常欢迎加入翻译计划，请Fork这个项目并通知我你要翻译的章节，完成之后提交Pull Request即可__。
+2019-12-15 部分api已过时，可去最新github-guava查看[wiki文档](https://github.com/google/guava/wiki)
 
 ## 目录
 ### 基础工具(Basic Utilities)

@@ -1,5 +1,6 @@
 package com.der.codepratise.BasicUtilities;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import org.junit.Assert;
 
@@ -31,5 +32,7 @@ public class UsingAndAvoidingNull {
         Assert.assertFalse(optional.asSet().isEmpty());
 
         Assert.assertEquals("4444", Optional.fromNullable(null).or("4444"));
+
+        Assert.assertEquals("44", MoreObjects.firstNonNull(null, "44"));
     }
 }
