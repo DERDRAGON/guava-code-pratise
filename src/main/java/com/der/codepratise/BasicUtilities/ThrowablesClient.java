@@ -19,5 +19,23 @@ public class ThrowablesClient {
         } catch (Exception e) {
             Throwables.propagateIfPossible(e);
         }
+//        try {
+//            throw new IOException("sddf");
+//        } catch (Throwable e) {
+//            System.out.println(Throwables.getStackTraceAsString(e));
+//            Throwables.propagateIfPossible(e, RuntimeException.class);
+//            Throwables.getCauseAs()
+//        }
+
+        //针对一些检查异常，在需要的时候将检查异常转化为非检查异常
+
+        try {
+            URL url = new URL("http://ociweb.com");
+            final InputStream in = url.openStream();
+            // read from the input stream
+            in.close();
+        } catch (Exception e) {
+            Throwables.throwIfUnchecked(e);
+        }
     }
 }
