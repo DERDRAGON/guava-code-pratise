@@ -1,14 +1,12 @@
 package com.der.codepratise.CollectionsUtil;
 
+import com.der.codepratise.entity.MapInstanceEntity;
 import com.der.codepratise.entity.MapTestEntity;
 import com.google.common.collect.*;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author K0790016
@@ -29,6 +27,74 @@ public class NewCollectionTypes {
         testMultimap();
         testBiMap();
         testTable();
+        testClassToInstanceMap();
+        testRangeSet();
+        testRangeMap();
+    }
+
+    private static void testRangeMap() {
+        TreeRangeMap<Integer, MapTestEntity> treeRangeMap = TreeRangeMap.<Integer, MapTestEntity>create();
+        treeRangeMap.put(Range.closedOpen(10, 15), new MapTestEntity(25, "twenty five"));
+        Assert.assertEquals("[[10..15)=MapTestEntity(id=25, name=twenty five, sex=null, description=null)]", treeRangeMap.toString());
+        //后添加的区间会覆盖之前的区间
+        treeRangeMap.put(Range.closedOpen(14, 17), new MapTestEntity(26, "twenty six"));
+        Assert.assertEquals("MapTestEntity(id=25, name=twenty five, sex=null, description=null)", treeRangeMap.get(12).toString());
+        Map<Range<Integer>, MapTestEntity> asDescendingMapOfRanges = treeRangeMap.asDescendingMapOfRanges();
+        Assert.assertEquals("[[10..14)=MapTestEntity(id=25, name=twenty five, sex=null, description=null), [14..17)=MapTestEntity(id=26, name=twenty six, sex=null, description=null)]",
+                treeRangeMap.toString());
+        treeRangeMap.put(Range.closedOpen(13, 17), new MapTestEntity(27, "twenty seven"));
+        Assert.assertEquals("[[10..13)=MapTestEntity(id=25, name=twenty five, sex=null, description=null), [13..17)=MapTestEntity(id=27, name=twenty seven, sex=null, description=null)]",
+                treeRangeMap.toString());
+        Map<Range<Integer>, MapTestEntity> asMapOfRanges = treeRangeMap.asMapOfRanges();
+        Assert.assertTrue(new Integer(2).equals(asMapOfRanges.size()));
+
+    }
+
+    private static void testRangeSet() {
+        //RangeSet描述了一组不相连的、非空的区间。当把一个区间添加到可变的RangeSet时，所有相连的区间会被合并，空区间会被忽略。
+        RangeSet<Integer> treeRangeSet = TreeRangeSet.<Integer>create();
+        treeRangeSet.add(Range.closed(1, 10)); // {[1, 10]}
+        Assert.assertEquals("[[1..10]]", treeRangeSet.toString());
+        treeRangeSet.add(Range.closedOpen(11, 15)); // disconnected range: {[1, 10], [11, 15)}
+        Assert.assertEquals("[[1..10], [11..15)]", treeRangeSet.toString());
+        treeRangeSet.add(Range.closedOpen(15, 20)); // connected range; {[1, 10], [11, 20)}
+        Assert.assertEquals("[[1..10], [11..20)]", treeRangeSet.toString());
+        treeRangeSet.add(Range.openClosed(0, 0)); // empty range; {[1, 10], [11, 20)}
+        Assert.assertEquals("[[1..10], [11..20)]", treeRangeSet.toString());
+        treeRangeSet.remove(Range.open(5, 10)); // splits [1, 10]; {[1, 5], [10, 10], [11, 20)}
+        Assert.assertEquals("[[1..5], [10..10], [11..20)]", treeRangeSet.toString());
+        treeRangeSet.add(Range.closed(10, 11));
+        Assert.assertEquals("[[1..5], [10..20)]", treeRangeSet.toString());
+        treeRangeSet.add(Range.greaterThan(21));
+        Assert.assertEquals("[[1..5], [10..20), (21..+∞)]", treeRangeSet.toString());
+        Set<Range<Integer>> ranges = treeRangeSet.asRanges();
+        Assert.assertEquals("[[1..5], [10..20), (21..+∞)]", ranges.toString());
+        // treeRangeSet的补集
+        RangeSet<Integer> complement = treeRangeSet.complement();
+        Assert.assertEquals("[(-∞..1), (5..10), [20..21]]", complement.toString());
+        //rangeContaining - 返回包含指定元素的Range；如果没有，则返回null。
+        Assert.assertEquals("[1..5]", treeRangeSet.rangeContaining(5).toString());
+        //足够直接地，测试RangeSet中的任何Range是否包含指定范围。
+        Assert.assertTrue(treeRangeSet.encloses(Range.closed(12, 15)));
+        //返回包含此RangeSet中包含每个范围的最小Range。
+        Range<Integer> span = treeRangeSet.span();
+        Assert.assertEquals("[1..+∞)", span.toString());
+
+    }
+
+    private static void testClassToInstanceMap() {
+        MutableClassToInstanceMap<MapTestEntity> mapTestEntityMutableClassToInstanceMap = MutableClassToInstanceMap.<MapTestEntity>create();
+        MapTestEntity testEntity = new MapTestEntity(22, "twenty twe");
+        mapTestEntityMutableClassToInstanceMap.putInstance(MapTestEntity.class, testEntity);
+        mapTestEntityMutableClassToInstanceMap.putInstance(MapTestEntity.class, new MapTestEntity(23, "twenty three"));
+        MapTestEntity instance = mapTestEntityMutableClassToInstanceMap.getInstance(MapTestEntity.class);
+        Assert.assertEquals("MapTestEntity(id=23, name=twenty three, sex=null, description=null)", instance.toString());
+
+        mapTestEntityMutableClassToInstanceMap.put(MapInstanceEntity.class, new MapInstanceEntity(24, "twenty four", "肖申克的救赎"));
+        Assert.assertTrue(new Integer(2).equals(mapTestEntityMutableClassToInstanceMap.size()));
+
+        ImmutableClassToInstanceMap<MapTestEntity> immutableClassToInstanceMap = ImmutableClassToInstanceMap.copyOf(mapTestEntityMutableClassToInstanceMap);
+        Assert.assertTrue(immutableClassToInstanceMap.getInstance(MapTestEntity.class).equals(mapTestEntityMutableClassToInstanceMap.getInstance(MapTestEntity.class)));
     }
 
     private static void testTable() {
@@ -49,13 +115,32 @@ public class NewCollectionTypes {
 
         Table<Integer, Integer, MapTestEntity> arrayTable = ArrayTable.<Integer, Integer, MapTestEntity>create(hashBasedTable);
         Set<Table.Cell<Integer, Integer, MapTestEntity>> cells = arrayTable.cellSet();
-        for (Table.Cell<Integer, Integer, MapTestEntity> cell : cells) {
-            System.out.println(String.format("row is %s, column is %s, result is %s.", cell.getRowKey(), cell.getColumnKey(), cell.getValue()));
-        }
+//        for (Table.Cell<Integer, Integer, MapTestEntity> cell : cells) {
+//            System.out.println(String.format("row is %s, column is %s, result is %s.", cell.getRowKey(), cell.getColumnKey(), cell.getValue()));
+//        }
         // 二维数组 中的点个数 放入11个值，row为：[0,6,7,8,9,10,11,12,13,14,15];column为：[0,6,7,8,9,10,11,12,13,14,15]共121个值（即11²）
         Assert.assertTrue(new Integer(121).equals(cells.size()));
-        //未完待续
+        //
+        Map<Integer, Map<Integer, MapTestEntity>> columnMap = hashBasedTable.columnMap();
+        Assert.assertEquals("{0={0=MapTestEntity(id=0, name=zero, sex=null, description=null)}, 6={6=MapTestEntity(id=6, name=six, sex=null, description=null)}, " +
+                        "7={7=MapTestEntity(id=7, name=seven, sex=null, description=null)}, 8={8=MapTestEntity(id=8, name=eight, sex=null, description=null)}, " +
+                        "9={9=MapTestEntity(id=9, name=nine, sex=null, description=null)}, 10={10=MapTestEntity(id=10, name=ten, sex=null, description=null)}, " +
+                        "11={11=MapTestEntity(id=11, name=eleven, sex=null, description=null)}, 12={12=MapTestEntity(id=12, name=twelve, sex=null, description=null)}, " +
+                        "13={13=MapTestEntity(id=13, name=thirteen, sex=null, description=null)}, 14={14=MapTestEntity(id=14, name=fourteen, sex=null, description=null)}, " +
+                        "15={15=MapTestEntity(id=15, name=fitteen, sex=null, description=null)}}",
+                columnMap.toString());
+        Map<Integer, Map<Integer, MapTestEntity>> rowMap = arrayTable.rowMap();
+        Assert.assertTrue(new Integer(11).equals(rowMap.size()));
+        Assert.assertTrue(new Integer(11).equals(rowMap.get(0).size()));
 
+        TreeBasedTable<Integer, Integer, MapTestEntity> treeBasedTable = TreeBasedTable.<Integer, Integer, MapTestEntity>create();
+        treeBasedTable.putAll(hashBasedTable);
+        SortedSet<Integer> rowKeySet = treeBasedTable.rowKeySet();
+        Assert.assertTrue(new Integer(11).equals(rowKeySet.size()));
+        /**
+         * ImmutableTable
+         * 其他实现
+         */
     }
 
     private static void testBiMap() {
