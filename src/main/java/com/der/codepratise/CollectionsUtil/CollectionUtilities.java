@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import org.junit.Assert;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -84,6 +83,12 @@ public class CollectionUtilities {
         List<MapTestEntity> listWithExpectedSize = Lists.<MapTestEntity>newArrayListWithExpectedSize(8);
         listWithExpectedSize.addAll(list2);
         Assert.assertTrue(Integer.valueOf(8).equals(listWithExpectedSize.size()));
+        List<MapTestEntity> listWithExpectedSize1 = Lists.<MapTestEntity>newArrayListWithExpectedSize(8);
+        listWithExpectedSize1.addAll(list);
+        Assert.assertTrue(Integer.valueOf(10).equals(listWithExpectedSize1.size()));
+
+        List<MapTestEntity> copyOnWriteArrayList = Lists.newCopyOnWriteArrayList(list);
+        Assert.assertTrue(Integer.valueOf(10).equals(copyOnWriteArrayList.size()));
     }
 
     private static void testCollections2() {
