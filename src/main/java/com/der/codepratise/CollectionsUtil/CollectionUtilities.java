@@ -2,15 +2,10 @@ package com.der.codepratise.CollectionsUtil;
 
 import com.der.codepratise.entity.MapInstanceEntity;
 import com.der.codepratise.entity.MapTestEntity;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
+import com.google.common.collect.*;
 import org.junit.Assert;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +29,22 @@ public class CollectionUtilities {
     public static void main(String[] args) {
         testCollections2();
         testLists();
+        testSets();
+    }
+
+    private static void testSets() {
+        Set<MapTestEntity> hashSet = Sets.<MapTestEntity>newHashSet();
+        hashSet.addAll(list);
+        Assert.assertTrue(Integer.valueOf(10).equals(hashSet.size()));
+
+        Set<List<MapTestEntity>> cartesianProduct = Sets.<MapTestEntity>cartesianProduct(hashSet);
+        for (List<MapTestEntity> entityList : cartesianProduct) {
+            Assert.assertTrue(Integer.valueOf(1).equals(entityList.size()));
+        }
+
+        Set<Set<MapTestEntity>> combinations = Sets.combinations(hashSet, 3);
+        Assert.assertTrue(Integer.valueOf(120).equals(combinations.size()));
+
     }
 
     private static void testLists() {
@@ -89,6 +100,31 @@ public class CollectionUtilities {
 
         List<MapTestEntity> copyOnWriteArrayList = Lists.newCopyOnWriteArrayList(list);
         Assert.assertTrue(Integer.valueOf(10).equals(copyOnWriteArrayList.size()));
+
+        LinkedList<MapTestEntity> newLinkedList = Lists.newLinkedList(listWithCapacity);
+        newLinkedList.addLast(list2.get(0));
+        Assert.assertEquals("[MapTestEntity(id=6, name=six, sex=null, description=null), MapTestEntity(id=7, name=seven, sex=null, description=null), " +
+                        "MapTestEntity(id=8, name=eight, sex=null, description=null), MapTestEntity(id=9, name=nine, sex=null, description=null), " +
+                        "MapTestEntity(id=10, name=ten, sex=null, description=null), MapTestEntity(id=11, name=eleven, sex=null, description=null), " +
+                        "MapTestEntity(id=12, name=twelve, sex=null, description=null), MapTestEntity(id=13, name=thirteen, sex=null, description=null), " +
+                        "MapTestEntity(id=14, name=fourteen, sex=null, description=null), MapTestEntity(id=15, name=fitteen, sex=null, description=null), " +
+                        "MapTestEntity(id=22, name=twenty twe, sex=null, description=null)]",
+                newLinkedList.toString());
+        MapTestEntity peek = newLinkedList.peek();
+        MapTestEntity first = newLinkedList.peekFirst();
+        Assert.assertTrue(peek.equals(first));
+        MapTestEntity last = newLinkedList.peekLast();
+        Assert.assertEquals("MapTestEntity(id=22, name=twenty twe, sex=null, description=null)", last.toString());
+
+        //按size分割list，最后一个可能更小
+        List<List<MapTestEntity>> partition = Lists.partition(list, 3);
+        Assert.assertTrue(Integer.valueOf(4).equals(partition.size()));
+        Assert.assertTrue(Integer.valueOf(1).equals(partition.get(3).size()));
+
+        List<List<MapTestEntity>> reverse = Lists.reverse(partition);
+        Assert.assertTrue(Integer.valueOf(1).equals(reverse.get(0).size()));
+
+
     }
 
     private static void testCollections2() {
