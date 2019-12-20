@@ -3,10 +3,13 @@ package com.der.codepratise.CollectionsUtil;
 import com.der.codepratise.entity.MapInstanceEntity;
 import com.der.codepratise.entity.MapTestEntity;
 import com.der.codepratise.enums.DerTestEnum;
+import com.google.common.base.Function;
 import com.google.common.collect.*;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.Assert;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +34,33 @@ public class CollectionUtilities {
         testCollections2();
         testLists();
         testSets();
+        testMaps();
+    }
+
+    private static void testMaps() {
+        Map<String, MapTestEntity> hashMap = Maps.<String, MapTestEntity>newHashMap();
+        for (MapTestEntity entity : list) {
+            hashMap.put(entity.getName(), entity);
+        }
+        Assert.assertTrue(Integer.valueOf(10).equals(hashMap.size()));
+
+        //返回一个实时Map视图，其键是set的内容，其值是使用函数按需计算的。
+        Map<String, MapTestEntity> asMap = Maps.<String, MapTestEntity>asMap(Sets.<String>newHashSet(list.stream().map(entity -> entity.getName()).collect(Collectors.toList())), str -> new MapTestEntity(1, str));
+        Assert.assertEquals("{nine=MapTestEntity(id=1, name=nine, sex=null, description=null), six=MapTestEntity(id=1, name=six, sex=null, description=null), " +
+                        "twelve=MapTestEntity(id=1, name=twelve, sex=null, description=null), seven=MapTestEntity(id=1, name=seven, sex=null, description=null), " +
+                        "eleven=MapTestEntity(id=1, name=eleven, sex=null, description=null), fitteen=MapTestEntity(id=1, name=fitteen, sex=null, description=null), " +
+                        "ten=MapTestEntity(id=1, name=ten, sex=null, description=null), thirteen=MapTestEntity(id=1, name=thirteen, sex=null, description=null), " +
+                        "eight=MapTestEntity(id=1, name=eight, sex=null, description=null), fourteen=MapTestEntity(id=1, name=fourteen, sex=null, description=null)}",
+                asMap.toString());
+
+        MapDifference<String, MapTestEntity> mapDifference = Maps.<String, MapTestEntity>difference(hashMap, asMap);
+        Assert.assertFalse(mapDifference.areEqual());
+
+        Map<String, MapTestEntity> filterEntries = Maps.<String, MapTestEntity>filterEntries(hashMap, entity -> entity.getValue().getId() < 10);
+        Assert.assertEquals("{nine=MapTestEntity(id=9, name=nine, sex=null, description=null), six=MapTestEntity(id=6, name=six, sex=null, description=null), " +
+                        "seven=MapTestEntity(id=7, name=seven, sex=null, description=null), eight=MapTestEntity(id=8, name=eight, sex=null, description=null)}",
+                filterEntries.toString());
+
     }
 
     private static void testSets() {
@@ -57,37 +87,108 @@ public class CollectionUtilities {
         Sets.SetView<MapTestEntity> difference = Sets.difference(hashSet, Sets.newHashSet(list2));
         Set<MapTestEntity> copyInto = difference.copyInto(newHashSet);
         //toString 还能偶尔不一样?
-        Assert.assertEquals("[MapTestEntity(id=8, name=eight, sex=null, description=null), MapTestEntity(id=9, name=nine, sex=null, description=null), " +
-                        "MapTestEntity(id=14, name=fourteen, sex=null, description=null), MapTestEntity(id=6, name=six, sex=null, description=null), MapTestEntity(id=7, name=seven, sex=null, description=null), " +
-                        "MapTestEntity(id=13, name=thirteen, sex=null, description=null), MapTestEntity(id=12, name=twelve, sex=null, description=null), " +
-                        "MapTestEntity(id=15, name=fitteen, sex=null, description=null), MapTestEntity(id=11, name=eleven, sex=null, description=null), " +
-                        "MapTestEntity(id=10, name=ten, sex=null, description=null)]",
+        Assert.assertEquals("[MapTestEntity(id=6, name=six, sex=null, description=null), MapTestEntity(id=8, name=eight, sex=null, description=null), " +
+                        "MapTestEntity(id=11, name=eleven, sex=null, description=null), MapTestEntity(id=9, name=nine, sex=null, description=null), " +
+                        "MapTestEntity(id=14, name=fourteen, sex=null, description=null), MapTestEntity(id=7, name=seven, sex=null, description=null), " +
+                        "MapTestEntity(id=10, name=ten, sex=null, description=null), MapTestEntity(id=15, name=fitteen, sex=null, description=null), " +
+                        "MapTestEntity(id=12, name=twelve, sex=null, description=null), MapTestEntity(id=13, name=thirteen, sex=null, description=null)]",
                 newHashSet.toString());
         Assert.assertTrue(copyInto.equals(newHashSet));
         HashSet<MapTestEntity> copyInto1 = Sets.difference(hashSet, Sets.newHashSet(list.get(0), list.get(2))).copyInto(Sets.newHashSet());
-        Assert.assertEquals("[MapTestEntity(id=9, name=nine, sex=null, description=null), " +
-                        "MapTestEntity(id=14, name=fourteen, sex=null, description=null), " +
-                        "MapTestEntity(id=7, name=seven, sex=null, description=null), MapTestEntity(id=13, name=thirteen, sex=null, description=null), " +
-                        "MapTestEntity(id=12, name=twelve, sex=null, description=null), MapTestEntity(id=15, name=fitteen, sex=null, description=null), " +
-                        "MapTestEntity(id=11, name=eleven, sex=null, description=null), MapTestEntity(id=10, name=ten, sex=null, description=null)]",
+        Assert.assertEquals("[MapTestEntity(id=11, name=eleven, sex=null, description=null), MapTestEntity(id=9, name=nine, sex=null, description=null), " +
+                        "MapTestEntity(id=14, name=fourteen, sex=null, description=null), MapTestEntity(id=7, name=seven, sex=null, description=null), " +
+                        "MapTestEntity(id=10, name=ten, sex=null, description=null), MapTestEntity(id=15, name=fitteen, sex=null, description=null), " +
+                        "MapTestEntity(id=12, name=twelve, sex=null, description=null), MapTestEntity(id=13, name=thirteen, sex=null, description=null)]",
                 copyInto1.toString());
         // 返回符合过滤条件的实例
         Set<MapTestEntity> filter = Sets.filter(newHashSet, map -> map.getId() < 10);
-        Assert.assertEquals("[MapTestEntity(id=8, name=eight, sex=null, description=null), MapTestEntity(id=9, name=nine, sex=null, description=null), " +
-                        "MapTestEntity(id=6, name=six, sex=null, description=null), MapTestEntity(id=7, name=seven, sex=null, description=null)]",
+        Assert.assertEquals("[MapTestEntity(id=6, name=six, sex=null, description=null), MapTestEntity(id=8, name=eight, sex=null, description=null), " +
+                        "MapTestEntity(id=9, name=nine, sex=null, description=null), MapTestEntity(id=7, name=seven, sex=null, description=null)]",
                 filter.toString());
 
+        // 取两个set的交集
         ImmutableSet<MapTestEntity> immutableCopy = Sets.intersection(hashSet, complementOf).immutableCopy();
         Assert.assertTrue(Integer.valueOf(0).equals(immutableCopy.size()));
 
         //返回两个集合的交集的不可修改的视图。
         ImmutableSet<MapTestEntity> intersection = Sets.intersection(hashSet, filter).immutableCopy();
-        Assert.assertEquals("[MapTestEntity(id=8, name=eight, sex=null, description=null), MapTestEntity(id=9, name=nine, sex=null, description=null), " +
-                        "MapTestEntity(id=6, name=six, sex=null, description=null), MapTestEntity(id=7, name=seven, sex=null, description=null)]",
+        Assert.assertEquals("[MapTestEntity(id=6, name=six, sex=null, description=null), MapTestEntity(id=8, name=eight, sex=null, description=null), " +
+                        "MapTestEntity(id=9, name=nine, sex=null, description=null), MapTestEntity(id=7, name=seven, sex=null, description=null)]",
                 intersection.toString());
 
         Set<MapTestEntity> concurrentHashSet = Sets.<MapTestEntity>newConcurrentHashSet();
         Assert.assertTrue(concurrentHashSet.addAll(newHashSet));
+
+        CopyOnWriteArraySet<MapTestEntity> copyOnWriteArraySet = Sets.newCopyOnWriteArraySet(hashSet);
+        copyOnWriteArraySet.retainAll(filter);
+        Assert.assertEquals("[MapTestEntity(id=6, name=six, sex=null, description=null), MapTestEntity(id=8, name=eight, sex=null, description=null), " +
+                        "MapTestEntity(id=9, name=nine, sex=null, description=null), MapTestEntity(id=7, name=seven, sex=null, description=null)]",
+                copyOnWriteArraySet.toString());
+
+        EnumSet<DerTestEnum> enumEnumSet = Sets.newEnumSet(immutableEnumSet, DerTestEnum.class);
+        Assert.assertEquals("[LI_RUI]", enumEnumSet.toString());
+        enumEnumSet.add(DerTestEnum.LIU_WEI);
+        Assert.assertTrue(Integer.valueOf(2).equals(enumEnumSet.size()));
+
+        HashSet<MapTestEntity> hashSetWithExpectedSize = Sets.<MapTestEntity>newHashSetWithExpectedSize(6);
+        hashSetWithExpectedSize.addAll(list);
+        Assert.assertTrue(Integer.valueOf(10).equals(hashSetWithExpectedSize.size()));
+
+        //创建一个空集合，该集合使用身份确定相等性。
+        //它比较对象引用，而不是调用equals，以确定提供的对象是否与集合中的元素匹配。
+        //例如，当传递的对象等于set成员但不是同一实例时，contains返回false。
+        //此行为类似于IdentityHashMap处理键查找的方式。
+        Set<MapTestEntity> identityHashSet = Sets.<MapTestEntity>newIdentityHashSet();
+        Set<MapTestEntity> identityHashSet2 = Sets.<MapTestEntity>newIdentityHashSet();
+        Set<MapTestEntity> identityHashSet3 = Sets.<MapTestEntity>newIdentityHashSet();
+        MapTestEntity entity = new MapTestEntity(333, "333");
+        MapTestEntity entity1 = new MapTestEntity(333, "333 too");
+        identityHashSet.add(entity);
+        identityHashSet2.add(entity1);
+        identityHashSet3.add(entity);
+        Assert.assertFalse(identityHashSet.equals(identityHashSet2));
+        Assert.assertTrue(identityHashSet.equals(identityHashSet3));
+
+        //大同小异
+//        LinkedHashSet<MapTestEntity> linkedHashSet = Sets.<MapTestEntity>newLinkedHashSet();
+
+        //泛型需要继承java.lang.Comparable
+        TreeSet<MapTestEntity> comparableTreeSet = Sets.<MapTestEntity>newTreeSet();
+        comparableTreeSet.addAll(list);
+        Assert.assertEquals("[MapTestEntity(id=6, name=six, sex=null, description=null), MapTestEntity(id=7, name=seven, sex=null, description=null), " +
+                        "MapTestEntity(id=8, name=eight, sex=null, description=null), MapTestEntity(id=9, name=nine, sex=null, description=null), " +
+                        "MapTestEntity(id=10, name=ten, sex=null, description=null), MapTestEntity(id=11, name=eleven, sex=null, description=null), " +
+                        "MapTestEntity(id=12, name=twelve, sex=null, description=null), MapTestEntity(id=13, name=thirteen, sex=null, description=null), " +
+                        "MapTestEntity(id=14, name=fourteen, sex=null, description=null), MapTestEntity(id=15, name=fitteen, sex=null, description=null)]",
+                comparableTreeSet.toString());
+        TreeSet<MapTestEntity> treeSet = Sets.newTreeSet(MapTestEntity::compareTo);
+        List<MapInstanceEntity> transform = Lists.transform(list, mapTestEntity -> new MapInstanceEntity(mapTestEntity.getId(), mapTestEntity.getName(), "movie" + mapTestEntity.getId()));
+        treeSet.addAll(transform);
+        Assert.assertEquals("[MapInstanceEntity(favouriteMoive=movie6), MapInstanceEntity(favouriteMoive=movie7), " +
+                        "MapInstanceEntity(favouriteMoive=movie8), MapInstanceEntity(favouriteMoive=movie9), MapInstanceEntity(favouriteMoive=movie10), " +
+                        "MapInstanceEntity(favouriteMoive=movie11), MapInstanceEntity(favouriteMoive=movie12), MapInstanceEntity(favouriteMoive=movie13), " +
+                        "MapInstanceEntity(favouriteMoive=movie14), MapInstanceEntity(favouriteMoive=movie15)]",
+                transform.toString());
+
+        Set<Set<MapTestEntity>> powerSet = Sets.<MapTestEntity>powerSet(treeSet);
+        Assert.assertEquals("powerSet({MapInstanceEntity(favouriteMoive=movie6)=0, MapInstanceEntity(favouriteMoive=movie7)=1, " +
+                        "MapInstanceEntity(favouriteMoive=movie8)=2, MapInstanceEntity(favouriteMoive=movie9)=3, MapInstanceEntity(favouriteMoive=movie10)=4, " +
+                        "MapInstanceEntity(favouriteMoive=movie11)=5, MapInstanceEntity(favouriteMoive=movie12)=6, MapInstanceEntity(favouriteMoive=movie13)=7, " +
+                        "MapInstanceEntity(favouriteMoive=movie14)=8, MapInstanceEntity(favouriteMoive=movie15)=9})",
+                powerSet.toString());
+
+        //返回集合的一部分的视图，其元素按范围包含。 太麻烦了，quit这部分
+//        static <K extends Comparable<? super K>> NavigableSet<K>	subSet(NavigableSet<K> set, Range<K> range)
+
+        // 返回由指定的导航集支持的同步（线程安全）导航集。太麻烦了，quit这部分
+//        static <E> NavigableSet<E>	synchronizedNavigableSet(NavigableSet<E> navigableSet)
+
+        // union - 返回两个集合的不可修改的视图。
+        HashSet<MapTestEntity> copyInto2 = Sets.<MapTestEntity>union(hashSet, Sets.newHashSet(list2)).copyInto(Sets.newHashSet());
+        Assert.assertTrue(Integer.valueOf(18).equals(list.size() + list2.size()));
+
+        // 返回指定导航集的不可修改视图。
+//        static <E> NavigableSet<E>	unmodifiableNavigableSet(NavigableSet<E> set)
 
     }
 
