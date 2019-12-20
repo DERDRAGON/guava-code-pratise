@@ -2,6 +2,7 @@ package com.der.codepratise.CollectionsUtil;
 
 import com.der.codepratise.entity.MapInstanceEntity;
 import com.der.codepratise.entity.MapTestEntity;
+import com.der.codepratise.enums.DerTestEnum;
 import com.google.common.collect.*;
 import org.junit.Assert;
 
@@ -44,6 +45,49 @@ public class CollectionUtilities {
 
         Set<Set<MapTestEntity>> combinations = Sets.combinations(hashSet, 3);
         Assert.assertTrue(Integer.valueOf(120).equals(combinations.size()));
+
+        ImmutableSet<DerTestEnum> immutableEnumSet = Sets.immutableEnumSet(DerTestEnum.LI_RUI);
+        EnumSet<DerTestEnum> complementOf = Sets.complementOf(immutableEnumSet);
+        Assert.assertEquals("[LIU_WEI, SHILONG]", complementOf.toString());
+        EnumSet<DerTestEnum> complementOf1 = Sets.complementOf(immutableEnumSet, DerTestEnum.class);
+        Assert.assertEquals("[LIU_WEI, SHILONG]", complementOf1.toString());
+
+        Set<MapTestEntity> newHashSet = Sets.<MapTestEntity>newHashSet();
+        // difference返回两组差异的不可更改视图。-- hashSet里跟参数2Set的不同的值
+        Sets.SetView<MapTestEntity> difference = Sets.difference(hashSet, Sets.newHashSet(list2));
+        Set<MapTestEntity> copyInto = difference.copyInto(newHashSet);
+        //toString 还能偶尔不一样?
+        Assert.assertEquals("[MapTestEntity(id=8, name=eight, sex=null, description=null), MapTestEntity(id=9, name=nine, sex=null, description=null), " +
+                        "MapTestEntity(id=14, name=fourteen, sex=null, description=null), MapTestEntity(id=6, name=six, sex=null, description=null), MapTestEntity(id=7, name=seven, sex=null, description=null), " +
+                        "MapTestEntity(id=13, name=thirteen, sex=null, description=null), MapTestEntity(id=12, name=twelve, sex=null, description=null), " +
+                        "MapTestEntity(id=15, name=fitteen, sex=null, description=null), MapTestEntity(id=11, name=eleven, sex=null, description=null), " +
+                        "MapTestEntity(id=10, name=ten, sex=null, description=null)]",
+                newHashSet.toString());
+        Assert.assertTrue(copyInto.equals(newHashSet));
+        HashSet<MapTestEntity> copyInto1 = Sets.difference(hashSet, Sets.newHashSet(list.get(0), list.get(2))).copyInto(Sets.newHashSet());
+        Assert.assertEquals("[MapTestEntity(id=9, name=nine, sex=null, description=null), " +
+                        "MapTestEntity(id=14, name=fourteen, sex=null, description=null), " +
+                        "MapTestEntity(id=7, name=seven, sex=null, description=null), MapTestEntity(id=13, name=thirteen, sex=null, description=null), " +
+                        "MapTestEntity(id=12, name=twelve, sex=null, description=null), MapTestEntity(id=15, name=fitteen, sex=null, description=null), " +
+                        "MapTestEntity(id=11, name=eleven, sex=null, description=null), MapTestEntity(id=10, name=ten, sex=null, description=null)]",
+                copyInto1.toString());
+        // 返回符合过滤条件的实例
+        Set<MapTestEntity> filter = Sets.filter(newHashSet, map -> map.getId() < 10);
+        Assert.assertEquals("[MapTestEntity(id=8, name=eight, sex=null, description=null), MapTestEntity(id=9, name=nine, sex=null, description=null), " +
+                        "MapTestEntity(id=6, name=six, sex=null, description=null), MapTestEntity(id=7, name=seven, sex=null, description=null)]",
+                filter.toString());
+
+        ImmutableSet<MapTestEntity> immutableCopy = Sets.intersection(hashSet, complementOf).immutableCopy();
+        Assert.assertTrue(Integer.valueOf(0).equals(immutableCopy.size()));
+
+        //返回两个集合的交集的不可修改的视图。
+        ImmutableSet<MapTestEntity> intersection = Sets.intersection(hashSet, filter).immutableCopy();
+        Assert.assertEquals("[MapTestEntity(id=8, name=eight, sex=null, description=null), MapTestEntity(id=9, name=nine, sex=null, description=null), " +
+                        "MapTestEntity(id=6, name=six, sex=null, description=null), MapTestEntity(id=7, name=seven, sex=null, description=null)]",
+                intersection.toString());
+
+        Set<MapTestEntity> concurrentHashSet = Sets.<MapTestEntity>newConcurrentHashSet();
+        Assert.assertTrue(concurrentHashSet.addAll(newHashSet));
 
     }
 
