@@ -3,13 +3,19 @@ package com.der.codepratise.CollectionsUtil;
 import com.der.codepratise.entity.MapInstanceEntity;
 import com.der.codepratise.entity.MapTestEntity;
 import com.der.codepratise.enums.DerTestEnum;
+import com.google.common.base.Function;
 import com.google.common.collect.*;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.units.qual.K;
 import org.junit.Assert;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -35,6 +41,38 @@ public class CollectionUtilities {
         testLists();
         testSets();
         testMaps();
+        testQueues();
+    }
+
+    private static void testQueues() {
+        ArrayDeque<MapTestEntity> arrayDeque = Queues.<MapTestEntity>newArrayDeque();
+        arrayDeque.addAll(list);
+        MapTestEntity poll = arrayDeque.poll();
+        Assert.assertEquals("MapTestEntity(id=6, name=six, sex=null, description=null)", poll.toString());
+        try {
+            ArrayBlockingQueue<MapTestEntity> arrayBlockingQueue = Queues.<MapTestEntity>newArrayBlockingQueue(10);
+            arrayBlockingQueue.addAll(list);
+            List<MapTestEntity> arrayList = Lists.<MapTestEntity>newArrayList();
+            int drain = Queues.<MapTestEntity>drain(arrayBlockingQueue, arrayList, 4, Duration.ofMillis(1000));
+            Assert.assertTrue(Integer.valueOf(4).equals(drain));
+            Assert.assertTrue(Integer.valueOf(6).equals(arrayBlockingQueue.size()));
+            Assert.assertTrue(Integer.valueOf(4).equals(arrayList.size()));
+
+            int drain1 = Queues.drain(arrayBlockingQueue, arrayList, 4, 1000, TimeUnit.MILLISECONDS);
+            Assert.assertTrue(Integer.valueOf(4).equals(drain1));
+            Assert.assertTrue(Integer.valueOf(2).equals(arrayBlockingQueue.size()));
+            Assert.assertTrue(Integer.valueOf(8).equals(arrayList.size()));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        ArrayBlockingQueue<MapTestEntity> arrayBlockingQueue = Queues.<MapTestEntity>newArrayBlockingQueue(10);
+        arrayBlockingQueue.addAll(list);
+        ArrayList<MapTestEntity> arrayList = Lists.<MapTestEntity>newArrayList();
+        int drainUninterruptibly = Queues.drainUninterruptibly(arrayBlockingQueue, arrayList, 5, Duration.ofSeconds(1l));
+        Assert.assertTrue(Integer.valueOf(5).equals(drainUninterruptibly));
+        Assert.assertTrue(Integer.valueOf(5).equals(arrayBlockingQueue.size()));
+        Assert.assertTrue(Integer.valueOf(5).equals(arrayList.size()));
     }
 
     private static void testMaps() {
@@ -92,20 +130,65 @@ public class CollectionUtilities {
             InputStream asStream = CollectionUtilities.class.getClassLoader().getResourceAsStream("application.properties");
             properties.load(asStream);
             ImmutableMap<String, String> fromProperties = Maps.fromProperties(properties);
-            Assert.assertEquals("{master.datasource.password=csl129, " +
-                            "second.datasource.driverClassName=com.mysql.jdbc.Driver, " +
-                            "second.datasource.url=jdbc:mysql://localhost:3306/slave?useUnicode=true&characterEncoding=utf8, " +
-                            "second.datasource.username=root, master.datasource.driverClassName=com.mysql.cj.jdbc.Driver, " +
-                            "second.datasource.password=csl129, mybatis.typeAliasesPackage=com.der.miutisourceb.entity, " +
-                            "mybatis.mapperLocations=classpath:mybatis/mapper/*.xml, " +
-                            "master.datasource.url=jdbc:mysql://localhost:3306/master?useUnicode=true&characterEncoding=utf8, " +
-                            "master.datasource.username=root}",
-                    fromProperties.toString());
+//            Assert.assertEquals("{master.datasource.password=csl129, " +
+//                            "second.datasource.driverClassName=com.mysql.jdbc.Driver, " +
+//                            "second.datasource.url=jdbc:mysql://localhost:3306/slave?useUnicode=true&characterEncoding=utf8, " +
+//                            "second.datasource.username=root, master.datasource.driverClassName=com.mysql.cj.jdbc.Driver, " +
+//                            "second.datasource.password=csl129, mybatis.typeAliasesPackage=com.der.miutisourceb.entity, " +
+//                            "mybatis.mapperLocations=classpath:mybatis/mapper/*.xml, " +
+//                            "master.datasource.url=jdbc:mysql://localhost:3306/master?useUnicode=true&characterEncoding=utf8, " +
+//                            "master.datasource.username=root}",
+//                    fromProperties.toString());
             Assert.assertTrue(Integer.valueOf(10).equals(fromProperties.size()));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        Map.Entry<String, MapTestEntity> immutableEntry = Maps.immutableEntry("test", new MapTestEntity(30, "thirty"));
+        MapTestEntity entity = immutableEntry.getValue();
+        Assert.assertEquals("MapTestEntity(id=30, name=thirty, sex=null, description=null)", entity.toString());
+
+        EnumMap<DerTestEnum, String> enumMap = Maps.newEnumMap(DerTestEnum.class);
+        Lists.newArrayList(DerTestEnum.values()).forEach(derTestEnum -> enumMap.put(derTestEnum, derTestEnum.getName()));
+        ImmutableMap<DerTestEnum, Object> immutableEnumMap = Maps.immutableEnumMap(enumMap);
+        Assert.assertEquals("{LI_RUI=李睿, LIU_WEI=刘威, SHILONG=世龙}", immutableEnumMap.toString());
+
+        LinkedHashMap<String, MapTestEntity> linkedHashMap = Maps.newLinkedHashMap(hashMap);
+        Assert.assertTrue(Integer.valueOf(10).equals(linkedHashMap.size()));
+
+        TreeMap<String, MapTestEntity> treeMap = Maps.<String, MapTestEntity>newTreeMap();
+        treeMap.putAll(hashMap);
+        SortedMap<String, MapTestEntity> subMap = treeMap.subMap("seven", "six");
+
+        NavigableMap<String, MapTestEntity> subMap1 = Maps.subMap(treeMap, Range.closedOpen("seven", "six"));
+        Assert.assertTrue(subMap.equals(subMap1));
+
+        //不会用
+//        Maps.<DerTestEnum, String>toImmutableEnumMap()
+
+        ImmutableMap<MapTestEntity, String> toMap = Maps.<MapTestEntity, String>toMap(list, mapTestEntity -> mapTestEntity.getName());
+        Assert.assertTrue(Integer.valueOf(10).equals(toMap.size()));
+
+//        Maps.transformEntries()
+
+        Map<String, Object> transformValues = Maps.transformValues(hashMap, new Function<MapTestEntity, Object>() {
+            @Override
+            public Object apply(@Nullable MapTestEntity mapTestEntity) {
+                return mapTestEntity;
+            }
+        });
+        Assert.assertTrue(transformValues.equals(hashMap));
+
+        ImmutableMap<Integer, MapTestEntity> uniqueIndex = Maps.uniqueIndex(list, mapTestEntity -> mapTestEntity.getId());
+        Assert.assertEquals("{6=MapTestEntity(id=6, name=six, sex=null, description=null), 7=MapTestEntity(id=7, name=seven, sex=null, description=null), " +
+                        "8=MapTestEntity(id=8, name=eight, sex=null, description=null), 9=MapTestEntity(id=9, name=nine, sex=null, description=null), " +
+                        "10=MapTestEntity(id=10, name=ten, sex=null, description=null), 11=MapTestEntity(id=11, name=eleven, sex=null, description=null), " +
+                        "12=MapTestEntity(id=12, name=twelve, sex=null, description=null), 13=MapTestEntity(id=13, name=thirteen, sex=null, description=null), " +
+                        "14=MapTestEntity(id=14, name=fourteen, sex=null, description=null), 15=MapTestEntity(id=15, name=fitteen, sex=null, description=null)}",
+                uniqueIndex.toString());
+
+//        Maps.unmodifiableBiMap()
+//        Maps.unmodifiableNavigableMap()
     }
 
     private static void testSets() {
