@@ -43,13 +43,57 @@ public class CollectionUtilities {
         testMaps();
         testQueues();
         testMultisets();
+        testMultimaps();
+    }
+
+    private static void testMultimaps() {
+        Multimap<String, MapTestEntity> listMultimap = MultimapBuilder.hashKeys().arrayListValues().<String, MapTestEntity>build();
+        for (MapTestEntity entity : list) {
+            listMultimap.put(entity.getName(), entity);
+        }
+        Map<String, Collection<MapTestEntity>> asMap = Multimaps.asMap(listMultimap);
+        asMap.forEach((key, value) -> {
+            Assert.assertTrue(Integer.valueOf(1).equals(value.size()));
+        });
     }
 
     private static void testMultisets() {
         HashMultiset<MapTestEntity> hashMultiset = HashMultiset.<MapTestEntity>create(list);
         HashMultiset<MapTestEntity> hashMultiset2 = HashMultiset.<MapTestEntity>create(list2);
         Multiset<MapTestEntity> union = Multisets.union(hashMultiset, hashMultiset2);
+        //com.google.common.collect.Multisets.containsOccurrences(Multiset<?> superMultiset, Multiset<?> subMultiset)
+        //subMultiset 中包含的元素 在 superMultiset 中都包含，且该元素在superMultiset中的数量不比subMultiset中的数量少
         Assert.assertTrue(Multisets.containsOccurrences(union, hashMultiset));
+
+        //将多重集的副本作为ImmutableMultiset返回，其迭代顺序首先是最高计数，并按原始多重集的迭代顺序断开联系。
+        ImmutableMultiset<MapTestEntity> highestCountFirst = Multisets.copyHighestCountFirst(hashMultiset);
+
+        Multiset<MapTestEntity> difference = Multisets.difference(hashMultiset, hashMultiset2);
+        Assert.assertTrue(Integer.valueOf(10).equals(difference.size()));
+
+        Multiset<MapTestEntity> filter = Multisets.filter(hashMultiset, entity -> entity.getId() > 10);
+        Assert.assertTrue(Integer.valueOf(5).equals(filter.size()));
+
+        Multiset.Entry<MapTestEntity> immutableEntry = Multisets.immutableEntry(list2.get(0), 3);
+        Assert.assertTrue(Integer.valueOf(3).equals(immutableEntry.getCount()));
+
+        Multiset<MapTestEntity> intersection = Multisets.intersection(hashMultiset2, highestCountFirst);
+        Assert.assertTrue(Integer.valueOf(0).equals(intersection.size()));
+
+        Assert.assertTrue(Multisets.removeOccurrences(hashMultiset, highestCountFirst));
+        Assert.assertFalse(Multisets.retainOccurrences(hashMultiset, highestCountFirst));
+
+        Multiset<MapTestEntity> sum = Multisets.sum(hashMultiset, hashMultiset2);
+        Assert.assertTrue(Integer.valueOf(8).equals(sum.size()));
+
+//        Multisets.toMultiset() -- 返回一个收集器，该收集器将元素累积到通过指定的供应商创建的多集中，其元素是将elementFunction应用于输入的结果，其计数等于将countFunction应用于输入的结果。
+
+        //返回无法改变的视图 -- UnmodifiableMultiset
+        Multiset<MapTestEntity> unmodifiableMultiset = Multisets.unmodifiableMultiset(union);
+
+        SortedMultiset<MapTestEntity> unmodifiableSortedMultiset = Multisets.unmodifiableSortedMultiset(TreeMultiset.create(list));
+        Assert.assertTrue(order.isOrdered(unmodifiableSortedMultiset));
+
     }
 
     private static void testQueues() {
@@ -87,6 +131,7 @@ public class CollectionUtilities {
         ConcurrentLinkedQueue<MapTestEntity> concurrentLinkedQueue = Queues.<MapTestEntity>newConcurrentLinkedQueue();
         list2.parallelStream().forEach(mapTestEntity -> concurrentLinkedQueue.add(mapTestEntity));
         MapTestEntity peek = concurrentLinkedQueue.peek();
+        // 有可能是相同的
         Assert.assertFalse(list2.get(list2.size() - 1).equals(peek));
 
         LinkedBlockingDeque<MapTestEntity> linkedBlockingDeque = Queues.<MapTestEntity>newLinkedBlockingDeque(10);
