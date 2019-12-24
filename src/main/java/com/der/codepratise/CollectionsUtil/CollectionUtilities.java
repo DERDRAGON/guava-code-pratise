@@ -49,7 +49,7 @@ public class CollectionUtilities {
         HashMultiset<MapTestEntity> hashMultiset = HashMultiset.<MapTestEntity>create(list);
         HashMultiset<MapTestEntity> hashMultiset2 = HashMultiset.<MapTestEntity>create(list2);
         Multiset<MapTestEntity> union = Multisets.union(hashMultiset, hashMultiset2);
-        Multisets.containsOccurrences(union, hashMultiset)
+        Assert.assertTrue(Multisets.containsOccurrences(union, hashMultiset));
     }
 
     private static void testQueues() {
