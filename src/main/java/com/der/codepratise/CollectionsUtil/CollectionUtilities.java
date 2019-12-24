@@ -6,22 +6,23 @@ import com.der.codepratise.enums.DerTestEnum;
 import com.google.common.base.Function;
 import com.google.common.collect.*;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.checkerframework.checker.units.qual.K;
 import org.junit.Assert;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
  * @author K0790016
  **/
 public class CollectionUtilities {
+
+    private static final Ordering natural = Ordering.natural();
+
+    private static final Ordering reverse = natural.reverse();
 
     private static final List<MapTestEntity> list = Lists.<MapTestEntity>newArrayList(new MapTestEntity(6, "six"),
             new MapTestEntity(7, "seven"), new MapTestEntity(8, "eight"), new MapTestEntity(9, "nine"),
@@ -34,7 +35,6 @@ public class CollectionUtilities {
             new MapTestEntity(5,"five"));
 
     private static final Ordering<MapTestEntity> order = Ordering.from(MapTestEntity::compareTo);
-    private static final Ordering<MapTestEntity> reverse = order.reverse();
 
     public static void main(String[] args) {
         testCollections2();
@@ -42,11 +42,19 @@ public class CollectionUtilities {
         testSets();
         testMaps();
         testQueues();
+        testMultisets();
+    }
+
+    private static void testMultisets() {
+        HashMultiset<MapTestEntity> hashMultiset = HashMultiset.<MapTestEntity>create();
+
     }
 
     private static void testQueues() {
         ArrayDeque<MapTestEntity> arrayDeque = Queues.<MapTestEntity>newArrayDeque();
+        ArrayDeque<MapTestEntity> arrayDeque1 = Queues.<MapTestEntity>newArrayDeque(list);
         arrayDeque.addAll(list);
+        Assert.assertTrue(Integer.valueOf(arrayDeque.size()).equals(arrayDeque1.size()));
         MapTestEntity poll = arrayDeque.poll();
         Assert.assertEquals("MapTestEntity(id=6, name=six, sex=null, description=null)", poll.toString());
         try {
@@ -73,6 +81,41 @@ public class CollectionUtilities {
         Assert.assertTrue(Integer.valueOf(5).equals(drainUninterruptibly));
         Assert.assertTrue(Integer.valueOf(5).equals(arrayBlockingQueue.size()));
         Assert.assertTrue(Integer.valueOf(5).equals(arrayList.size()));
+
+        ConcurrentLinkedQueue<MapTestEntity> concurrentLinkedQueue = Queues.<MapTestEntity>newConcurrentLinkedQueue();
+        list2.parallelStream().forEach(mapTestEntity -> concurrentLinkedQueue.add(mapTestEntity));
+        MapTestEntity peek = concurrentLinkedQueue.peek();
+        Assert.assertFalse(list2.get(list2.size() - 1).equals(peek));
+
+        LinkedBlockingDeque<MapTestEntity> linkedBlockingDeque = Queues.<MapTestEntity>newLinkedBlockingDeque(10);
+        linkedBlockingDeque.addAll(list2);
+        linkedBlockingDeque.addLast(list.get(0));
+        List<MapTestEntity> sortedCopy = order.sortedCopy(linkedBlockingDeque);
+        linkedBlockingDeque.clear();
+        linkedBlockingDeque.addAll(sortedCopy);
+        Iterator<MapTestEntity> descendingIterator = linkedBlockingDeque.descendingIterator();
+
+        LinkedBlockingDeque<MapTestEntity> linkedBlockingDeque1 = Queues.<MapTestEntity>newLinkedBlockingDeque();
+        descendingIterator.forEachRemaining(entity -> linkedBlockingDeque1.addLast(entity));
+
+        Assert.assertTrue(Integer.valueOf(9).equals(linkedBlockingDeque.size()));
+        Assert.assertTrue(Integer.valueOf(9).equals(linkedBlockingDeque1.size()));
+        Assert.assertTrue(reverse.isOrdered(linkedBlockingDeque1));
+
+        PriorityBlockingQueue<MapTestEntity> priorityBlockingQueue = Queues.<MapTestEntity>newPriorityBlockingQueue();
+        priorityBlockingQueue.addAll(list);
+        priorityBlockingQueue.addAll(list2);
+        ArrayList<MapTestEntity> mapTestEntities = Lists.<MapTestEntity>newArrayList();
+        priorityBlockingQueue.drainTo(mapTestEntities);
+        Assert.assertTrue(order.isOrdered(mapTestEntities));
+
+//        Queues.<MapTestEntity>newSynchronousQueue(); -- 创建一个具有不公平访问策略的空SynchronousQueue。
+
+//        Deque<MapTestEntity> synchronizedDeque = Queues.synchronizedDeque(arrayDeque); -- 返回由指定双端队列支持的同步（线程安全）双端队列。
+
+//        Queues.synchronizedQueue() -- 返回由指定队列支持的同步（线程安全）队列。
+
+
     }
 
     private static void testMaps() {
