@@ -28,6 +28,14 @@ public class CachesExplained {
             }
         });
 
+        new ForwardingLoadingCache<String,MapTestEntity>(){
+
+            @Override
+            protected LoadingCache<String, MapTestEntity> delegate() {
+                return null;
+            }
+        }
+
         loadingCache.getUnchecked()
     }
 }
