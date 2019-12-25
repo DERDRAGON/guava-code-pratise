@@ -1,5 +1,5 @@
 # 示例
-```java
+```
 LoadingCahce<Key, Graph> graphs = CacheBuilder.newBuilder()
 	.maximumSize(1000)
 	.expireAfterWrite(10, TimeUnit.MINUTES)
@@ -34,7 +34,7 @@ _注意_，如果你不需要`Cache`的功能，那么`ConcurrentMap`的内存�
 ## 从`CacheLoader`加载
 `LoadingCache`是一个通过`CacheLoader`构建出来的`Cache`，创建一个`CacheLoader`非常容易，实现`V load(K key) throws Exception`方法，例如，可以通过下列方法创建一个`LoadingCache`：
 
-```java
+```
 LoadingCache<Key, Graph> graphs = CacheBuilder.newBuilder().maximumSize(100).build(new CacheLoader<Key, Graph>() {
 	public Graph load(Key k) throws AnyException {
 		return createExpansiveGraph(k);
@@ -50,7 +50,7 @@ try {
 
 查询`LoadingCache`的权威方法是通过`get(K)`方法，要么返回一个已缓存的值，要么使用`CacheLoader`来加载一个新的值。`CacheLoader`可能会抛出异常，`LoadingCache.get(K)`将会抛出`ExecutionException`。如果定义了不抛出经检查的异常，在获取的时候可以使用`getUnchecked(K)`来查询缓存。注意不要使用`getUnchecked(K)`方法来查询定义了检查异常的`CacheLoader`。
 
-```java
+```
 LoadingCache<Key, Graph> graphs = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build(new CacheLoader<Key, Graph>() {
 	public Graph load(Key k) {
 		return createExpansiveGraph(k);
@@ -60,12 +60,12 @@ LoadingCache<Key, Graph> graphs = CacheBuilder.newBuilder().expireAfterAccess(10
 return graphs.getUnchecked(key);
 ```
 
-批量查询可以使用`getAll(Iterable<? extends K>)`。默认情况下，`getAll`对于每一个不存在于缓存中的key都将触发一个单独的`CacheLoader.load`调用。当批量获取比单独获取跟家高效的时候，可以覆写`CacheLoader.loadAll()`改变这个行为。`getAll`的性能会有相应的提高。
+批量查询可以使用`getAll(Iterable<? extends K>)`。默认情况下，`getAll`对于每一个不存在于缓存中的key都将触发一个单独的`CacheLoader.load`调用。当批量获取比单独获取更加高效的时候，可以覆写`CacheLoader.loadAll()`改变这个行为。`getAll`的性能会有相应的提高。
 
 ## 从`Callable`加载
 所有Guava的缓存，加载或不加载的，都支持`get(K, Callable<V>)`。这个方法返回与此key相关联的值，或从`Callable`中计算并添加到缓存中。直到加载完毕`Cache`的状态才会改变。这个方法使用了一种简单的方式来代替了“如果有，返回；如果没有，创建、存储并返回”模式。
 
-```java
+```
 Cache<Key, Value> cache = CacheBuilder.newBuilder().maximumSize(1000).build(); //没有CacheLoader
 try {
 	cache.get(key, new Callable() {
@@ -89,7 +89,7 @@ try {
 
 另外，如果不同的缓存具有不同的大小，例如，缓存的值内存模型完全不同，可能就需要指定`CacheBuilder.weigher(Wheigher)`和`CacheBuilder.maximumWeight(long)`。与`maximumSize`不同，weight在创建的时候就已经计算了，之后一直保持不变。
 
-```java
+```
 LoadingCache<Key, Graph> graphs = CacheBuilder.newBuilder().maximumWeight(100000).weigher(new Weigher<Key, Graph>() {
 	public int weigh(Key k, Graph g) {
 		return g.vertices().size();
@@ -129,7 +129,7 @@ Guava可以使用key或value的弱引用、value的弱引用来设置缓存以�
 
 `RemovalListener`所有抛出的异常都会被记录和接收。
 
-```java
+```
 CacheLoader<Key, DatabaseConnection> loader = new CacheLoader<Key, DatabaseConnection>() {
 	public DatabaseConnection load(Key k) throws Exception {
 		return openConnection(k);
@@ -164,7 +164,7 @@ __注意__：`RemovalListener`默认是同步执行的，因为缓存的维护�
 
 `CacheLoader`可以通过覆写`CacheLoader.reload(K, V)`在刷新时指定更加敏捷的行为 — 使用旧值计算新值。
 
-```java
+```
 LoadingCache<Key, Graph> graphs = CacheBuilder.newBuilder().maximumSize(1000).refreshAfterWrite(1, TimeUnit.MINUTES).build(new CacheLoader<Key, Graph>() {
 	public Graph load(Key k) {
 		return getGraphFromDatabase(k);

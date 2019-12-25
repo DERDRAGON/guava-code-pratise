@@ -44,6 +44,8 @@ public class CollectionUtilities {
         testQueues();
         testMultisets();
         testMultimaps();
+//        testMaps();
+//        testTables();
     }
 
     private static void testMultimaps() {
