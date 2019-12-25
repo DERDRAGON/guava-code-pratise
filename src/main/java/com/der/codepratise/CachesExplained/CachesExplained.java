@@ -7,6 +7,7 @@ import org.junit.Assert;
 
 import java.time.Duration;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -67,6 +68,17 @@ public class CachesExplained {
 
         MapTestEntity unchecked = loadingCache.getUnchecked("5");
         Assert.assertEquals("MapTestEntity(id=null, name=5, sex=null, description=null)", unchecked.toString());
+
+        ConcurrentMap<String, MapTestEntity> asMap = forwardingLoadingCache.asMap();
+        Assert.assertEquals("{5=MapTestEntity(id=null, name=5, sex=null, description=null), 44=MapTestEntity(id=0, name=zero, sex=null, description=null), " +
+                        "33=MapTestEntity(id=null, name=33, sex=null, description=null)}",
+                asMap.toString());
+        try {
+            MapTestEntity mapTestEntity = forwardingLoadingCache.get("34");
+            Assert.assertEquals("MapTestEntity(id=null, name=34, sex=null, description=null)", mapTestEntity.toString());
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
 
     }
 }
