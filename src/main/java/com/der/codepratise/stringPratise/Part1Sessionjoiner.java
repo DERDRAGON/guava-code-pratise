@@ -1,15 +1,15 @@
-package com.der.codepratise.string_pratise;
+package com.der.codepratise.stringPratise;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.base.CaseFormat;
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableBiMap;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author K0790016
@@ -19,6 +19,21 @@ public class Part1Sessionjoiner {
     public static void main(String[] args) {
         testJoiner();
         testSplitter();
+        testCharsets();
+        testCaseFormat();
+    }
+
+    private static void testCaseFormat() {
+        String caondfds_fds = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, "CAONDFDS_FDS");
+        System.out.println(caondfds_fds);
+    }
+
+    private static void testCharsets() {
+        String src = "abc";
+        src.getBytes(Charsets.UTF_8);
+        src.getBytes(Charsets.ISO_8859_1);
+        src.getBytes(Charsets.UTF_16);
+        src.getBytes(Charsets.US_ASCII);
     }
 
     private static final List<String> stringList = Arrays.asList("2", "34f", "2");
