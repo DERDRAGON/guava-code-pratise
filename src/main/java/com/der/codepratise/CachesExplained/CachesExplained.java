@@ -197,8 +197,16 @@ public class CachesExplained {
         });
 
         //自动定时刷新功能  refreshAfterWrite 缓存项只有在被检索时才会真正刷新
-        Cache<String, MapTestEntity> build9 = CacheBuilder.newBuilder().maximumSize(3000).refreshAfterWrite(Duration.ofMillis(2000)).<String, MapTestEntity>build();
+        Cache<String, MapTestEntity> build9 = CacheBuilder.newBuilder().maximumSize(3000).refreshAfterWrite(Duration.ofMillis(2000)).recordStats().<String, MapTestEntity>build();
 
+        CacheStats cacheStats = build9.stats();
+        //缓存命中率
+        cacheStats.hitRate();
+        //加载新值的平均时间
+        cacheStats.averageLoadPenalty();
+
+        //缓存项被回收的总数，不包括显式清除
+        cacheStats.evictionCount();
 
 
     }
