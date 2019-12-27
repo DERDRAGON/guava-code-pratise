@@ -4,11 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.der.codepratise.entity.MapTestEntity;
 import com.google.common.base.*;
 import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.Maps;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -219,6 +221,18 @@ public class Part1Sessionjoiner {
                         "MapTestEntity(id=14, name=fourteen, sex=null, description=null); MapTestEntity(id=15, name=fitteen, sex=null, description=null)",
                 joiner.appendTo(new StringBuilder("begin: "), list).toString());
 
+        Assert.assertEquals("ko: MapTestEntity(id=6, name=six, sex=null, description=null); MapTestEntity(id=7, name=seven, sex=null, description=null); MapTestEntity(id=11, name=eleven, sex=null, description=null)",
+                joiner.appendTo(new StringBuilder("ko: "), list.get(0), list.get(1), list.get(5)).toString());
 
+        Assert.assertEquals("MapTestEntity(id=31, name=thirty one, sex=null, description=null); MapTestEntity(id=32, name=thirty two, sex=null, description=null)", joiner.join(new MapTestEntity(31, "thirty one"), new MapTestEntity(32, "thirty two")));
+
+        Joiner.MapJoiner mapJoiner = Joiner.on(" 这是一段分割线 ").withKeyValueSeparator(":");
+
+        Map<String, MapTestEntity> newHashMap = Maps.<String, MapTestEntity>newHashMap();
+        newHashMap.put("thirty three", new MapTestEntity(33, "thirty three"));
+        newHashMap.put("thirty four", new MapTestEntity(34, "thirty four"));
+        Assert.assertEquals("thirty three:MapTestEntity(id=33, name=thirty three, sex=null, description=null) 这是一段分割线 " +
+                        "thirty four:MapTestEntity(id=34, name=thirty four, sex=null, description=null)",
+                mapJoiner.join(newHashMap));
     }
 }
