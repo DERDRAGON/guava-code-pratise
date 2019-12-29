@@ -6,6 +6,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableBiMap;
+import org.junit.Assert;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +26,7 @@ public class Part1Sessionjoiner {
 
     private static void testCaseFormat() {
         String caondfds_fds = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, "CAONDFDS_FDS");
-        System.out.println(caondfds_fds);
+        Assert.assertEquals("caondfdsFds", caondfds_fds);
     }
 
     private static void testCharsets() {
