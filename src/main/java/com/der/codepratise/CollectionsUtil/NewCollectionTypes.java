@@ -301,9 +301,17 @@ public class NewCollectionTypes {
         Assert.assertTrue(new Integer(0).equals(concurrentHashMultiset.size()));
 
         Multiset<MapTestEntity> immutableMultiset = ImmutableMultiset.<MapTestEntity>copyOf(linkedHashMultiset);
+        //        copy.add(23);  -- java.lang.UnsupportedOperationException
+//        list.add(33); -- java.lang.UnsupportedOperationException
         Assert.assertTrue(new Integer(10).equals(immutableMultiset.size()));
         Assert.assertTrue(natural.isOrdered(immutableMultiset));
         Multiset<MapTestEntity> toImmutableMultiset = list.stream().filter(mapTestEntity -> mapTestEntity.getId() != null).collect(ImmutableMultiset.toImmutableMultiset());
         Assert.assertTrue(new Integer(10).equals(toImmutableMultiset.size()));
+
+        //        Defensive Copies，保护性拷贝。
+//        List<Integer> unmodifiableList = Collections.unmodifiableList(list);
+//        System.out.println(JSON.toJSONString(unmodifiableList));
+//        list.add(44);  -- java.lang.UnsupportedOperationException
+//        System.out.println(JSON.toJSONString(unmodifiableList));
     }
 }
