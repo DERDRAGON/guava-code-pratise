@@ -1,11 +1,10 @@
 package com.der.codepratise.primitives;
 
+import com.google.common.base.Converter;
 import com.google.common.base.Joiner;
-import com.google.common.primitives.Bytes;
-import com.google.common.primitives.Shorts;
-import com.google.common.primitives.SignedBytes;
-import com.google.common.primitives.UnsignedBytes;
+import com.google.common.primitives.*;
 
+import java.math.BigInteger;
 import java.util.Comparator;
 import java.util.List;
 
@@ -25,11 +24,133 @@ public class Primitives {
     private static final short[] shortArray = {1,2,3,4,5,5,7,9,9};
     private static final short[] shortArray2 = {0, 6, 8, 10};
 
+    private static final int[] intArray = {1,2,3,4,5,5,7,9,9};
+    private static final int[] intArray2 = {0, 6, 8, 10};
+
     public static void main(String[] args) {
         testBytes();
         testSignedBytes();
         testUnsignedBytes();
         testShorts();
+        testInts();
+        testUnsignedInteger();
+        testUnsignedInts();
+    }
+
+    private static void testUnsignedInts() {
+        int checkedCast = UnsignedInts.checkedCast(77L);
+        assertTrue(checkedCast == 77);
+
+        assertTrue(-1 == UnsignedInts.compare(4, 6));
+
+        assertTrue(UnsignedInts.decode("4") == 4);
+    }
+
+    private static void testUnsignedInteger() {
+        assertEquals("4294967295", String.valueOf(UnsignedInteger.MAX_VALUE));
+        assertTrue(UnsignedInteger.ZERO.intValue() == 0);
+        assertTrue(UnsignedInteger.ONE.intValue() == 1);
+
+        UnsignedInteger unsignedInteger = UnsignedInteger.valueOf("7777");
+        assertTrue(unsignedInteger.intValue() == 7777);
+        BigInteger bigInteger = unsignedInteger.bigIntegerValue();
+        assertTrue(bigInteger.equals(BigInteger.valueOf(7777L)));
+
+        assertTrue(UnsignedInteger.valueOf(bigInteger).equals(unsignedInteger));
+
+        //相除
+        UnsignedInteger dividedBy = unsignedInteger.dividedBy(UnsignedInteger.valueOf(7L));
+        assertTrue(UnsignedInteger.valueOf(1111L).equals(dividedBy));
+
+        UnsignedInteger fromIntBits = UnsignedInteger.fromIntBits(7777);
+        assertTrue(unsignedInteger.equals(fromIntBits));
+
+        //求余
+        UnsignedInteger mod = fromIntBits.mod(UnsignedInteger.fromIntBits(10));
+        assertTrue(mod.intValue() == 7);
+
+        //相减
+        UnsignedInteger minus = fromIntBits.minus(UnsignedInteger.valueOf(7000));
+        assertTrue(minus.intValue() == 777);
+
+        //相乘
+        UnsignedInteger plus = fromIntBits.plus(UnsignedInteger.valueOf(223));
+        assertTrue(plus.intValue() == 8000);
+
+        assertEquals("222102", fromIntBits.toString(5));
+    }
+
+    private static void testInts() {
+        assertTrue(Integer.valueOf(4).equals(Ints.BYTES));
+        assertTrue(Integer.valueOf(1073741824).equals(Ints.MAX_POWER_OF_TWO));
+
+        int[] ints = Ints.toArray(Ints.asList(intArray));
+        int[] ints2 = Ints.toArray(Ints.asList(intArray2));
+
+        assertTrue(3345 == Ints.checkedCast(3345L));
+
+        assertTrue(-1 == Ints.compare(4, 5));
+
+        int[] concat = Ints.concat(ints, ints2);
+        String join = Ints.join("$", concat);
+        assertEquals("1$2$3$4$5$5$7$9$9$0$6$8$10", join);
+
+        int constrainToRange = Ints.constrainToRange(5, 2, 11);
+        assertTrue(5 == constrainToRange);
+
+        assertTrue(Ints.contains(concat, 6));
+
+        int[] ensureCapacity = Ints.ensureCapacity(ints2, 10, 4);
+
+        assertTrue(ensureCapacity.length == 14);
+
+        assertTrue(ensureCapacity[13] == 0);
+
+        //返回其big-endian表示形式存储在字节的前4个字节中的int值；等效于ByteBuffer.wrap（bytes）.getInt（）。
+        //没懂
+        int fromByteArray = Ints.fromByteArray(byteArray);
+        assertTrue(fromByteArray == 16909060);
+        //以大尾数顺序返回int值，其字节表示形式为给定的4个字节；
+        //等效于Ints.fromByteArray（new byte [] {b1，b2，b3，b4}）。一样没懂
+        int fromBytes = Ints.fromBytes(byteArray2[0], byteArray2[1], byteArray2[2], byteArray2[3]);
+        assertTrue(395274 == fromBytes);
+
+//        返回值的哈希码；等于调用（（Integer）value）.hashCode（）的结果。
+//        Ints.hashCode(3)
+
+        int indexOf = Ints.indexOf(concat, 7);
+        assertTrue(6 == indexOf);
+
+        int indexOf1 = Ints.indexOf(concat, new int[]{5, 7, 9});
+        assertTrue(5 == indexOf1);
+
+        int indexOf2 = Ints.lastIndexOf(concat, 2);
+        assertTrue(1 == indexOf2);
+
+        Comparator<int[]> lexicographicalComparator = Ints.lexicographicalComparator();
+        assertTrue(1 == lexicographicalComparator.compare(ints, ints2));
+
+        assertTrue(9 == Ints.max(ints));
+
+        assertTrue(0 == Ints.min(ints2));
+
+        Ints.reverse(ints);
+
+        join = Ints.join("#", ints);
+        assertEquals("9#9#7#5#5#4#3#2#1", join);
+
+        Converter<String, Integer> stringConverter = Ints.stringConverter();
+        assertTrue(333 == stringConverter.convert("333"));
+
+        byte[] bytes = Ints.toByteArray(666);
+        List<Byte> byteList = Bytes.asList(bytes);
+        assertEquals("0,0,2,-102", joiner.appendTo(new StringBuilder(), byteList).toString());
+
+        assertTrue(33 == Ints.tryParse("33"));
+
+        assertTrue(null == Ints.tryParse("ds"));
+
+        assertTrue(15 == Ints.tryParse("33", 4));
     }
 
     /* short -32768 - +32767 */
@@ -57,6 +178,20 @@ public class Primitives {
         assertTrue(Integer.valueOf(13).equals(ensureCapacity.length));
 
         assertTrue(Integer.valueOf(0).shortValue() == ensureCapacity[10]);
+
+        assertTrue(Integer.valueOf(29384).shortValue() == Shorts.saturatedCast(29384));
+        assertTrue(Integer.valueOf(32767).shortValue() == Shorts.saturatedCast(32768));
+        assertTrue(Integer.valueOf(-32768).shortValue() == Shorts.saturatedCast(-32769));
+
+        Shorts.sortDescending(shortArray, 3, 6);
+
+        join = Shorts.join("^", shortArray);
+        assertEquals("1^2^3^5^5^4^7^9^9", join);
+
+        Shorts.sortDescending(shortArray);
+        join = Shorts.join("^", shortArray);
+        assertEquals("9^9^7^5^5^4^3^2^1", join);
+
     }
 
     private static void testUnsignedBytes() {
