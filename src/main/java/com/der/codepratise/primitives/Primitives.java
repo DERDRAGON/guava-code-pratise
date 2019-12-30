@@ -2,6 +2,7 @@ package com.der.codepratise.primitives;
 
 import com.google.common.base.Joiner;
 import com.google.common.primitives.Bytes;
+import com.google.common.primitives.Shorts;
 import com.google.common.primitives.SignedBytes;
 import com.google.common.primitives.UnsignedBytes;
 
@@ -21,10 +22,41 @@ public class Primitives {
     private static final byte[] byteArray = {1,2,3,4,5,5,7,9,9};
     private static final byte[] byteArray2 = {0, 6, 8, 10};
 
+    private static final short[] shortArray = {1,2,3,4,5,5,7,9,9};
+    private static final short[] shortArray2 = {0, 6, 8, 10};
+
     public static void main(String[] args) {
         testBytes();
         testSignedBytes();
         testUnsignedBytes();
+        testShorts();
+    }
+
+    /* short -32768 - +32767 */
+    private static void testShorts() {
+        assertTrue(Integer.valueOf(2).equals(Shorts.BYTES));
+        assertTrue(Integer.valueOf(16384).shortValue() == Shorts.MAX_POWER_OF_TWO);
+
+        short[] shortArray = Shorts.toArray(Shorts.asList(Primitives.shortArray));
+        short[] shortArray2 = Shorts.toArray(Shorts.asList(Primitives.shortArray2));
+
+        assertTrue(Short.valueOf("-767").equals(Shorts.checkedCast(-767)));
+
+        assertTrue(Integer.valueOf(-3).equals(Shorts.compare(shortArray[5], shortArray2[2])));
+
+        short[] concat = Shorts.concat(shortArray, shortArray2);
+        String join = Shorts.join("^", concat);
+        assertEquals("1^2^3^4^5^5^7^9^9^0^6^8^10", join);
+
+        // 5 -- 8 -- 10
+        assertTrue(Integer.valueOf(8).shortValue() == Shorts.constrainToRange(shortArray[4], shortArray2[2], shortArray2[3]));
+
+        assertTrue(Shorts.contains(shortArray, (short)9));
+
+        short[] ensureCapacity = Shorts.ensureCapacity(shortArray2, 10, 3);
+        assertTrue(Integer.valueOf(13).equals(ensureCapacity.length));
+
+        assertTrue(Integer.valueOf(0).shortValue() == ensureCapacity[10]);
     }
 
     private static void testUnsignedBytes() {
