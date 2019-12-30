@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.SignedBytes;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -23,6 +24,7 @@ public class Primitives {
 
     private static void testSignedBytes() {
         byte[] byteArray = {1,2,3,4,5,5,7,9,9};
+        byte[] byteArray2 = {0, 6, 8, 10};
 
         //如果可能，返回等于value的字节值。(不超过byte范围)
         SignedBytes.checkedCast(23L);
@@ -31,6 +33,22 @@ public class Primitives {
 
         String join = SignedBytes.join("%", byteArray);
         assertEquals("1%2%3%4%5%5%7%9%9", join);
+
+        Comparator<byte[]> comparator = SignedBytes.lexicographicalComparator();
+        assertTrue(Integer.valueOf(1).equals(comparator.compare(byteArray, byteArray2)));
+
+        byte max = SignedBytes.max(byteArray);
+        assertTrue(Integer.valueOf(9).byteValue() == max);
+        byte min = SignedBytes.min(byteArray);
+        assertTrue(Integer.valueOf(1).byteValue() == min);
+
+        SignedBytes.sortDescending(byteArray, 2, 5);
+        join = SignedBytes.join("%", byteArray);
+        assertEquals("1%2%5%4%3%5%7%9%9", join);
+
+        SignedBytes.sortDescending(byteArray);
+        join = SignedBytes.join("%", byteArray);
+        assertEquals("9%9%7%5%5%4%3%2%1", join);
     }
 
     private static void testBytes() {
