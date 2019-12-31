@@ -3,6 +3,7 @@ package com.der.codepratise.primitives;
 import com.google.common.base.Converter;
 import com.google.common.base.Joiner;
 import com.google.common.primitives.*;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.math.BigInteger;
 import java.util.Comparator;
@@ -40,6 +41,81 @@ public class Primitives {
         testUnsignedInteger();
         testUnsignedInts();
         testLongs();
+        testUnsignedLong();
+        testUnsignedLongs();
+        testFloats();
+    }
+
+    private static void testFloats() {
+        assertTrue(4 == Floats.BYTES);
+    }
+
+    private static void testUnsignedLongs() {
+        assertTrue(1 == UnsignedLongs.compare(8, 2));
+
+        long divide = UnsignedLongs.divide(8, 3);
+        assertTrue(2 == divide);
+
+        String join = UnsignedLongs.join(")", longArray);
+        assertEquals("1)2)3)4)5)5)7)9)9", join);
+        long[] longs = Longs.ensureCapacity(longArray, 10, 0);
+        longs[longs.length - 1] = -1;
+        join = UnsignedLongs.join("!", longs);
+        assertEquals("1!2!3!4!5!5!7!9!9!18446744073709551615", join);
+
+        long max = UnsignedLongs.max(longs);
+        assertTrue(-1 == max);
+
+        long min = UnsignedLongs.min(longs);
+        assertTrue(1 == min);
+
+        long parseUnsignedLong = UnsignedLongs.parseUnsignedLong("3333");
+        assertTrue(3333 == parseUnsignedLong);
+
+        long unsignedLong = UnsignedLongs.parseUnsignedLong("32332", 5);
+        assertTrue(2217 == unsignedLong);
+
+        long remainder = UnsignedLongs.remainder(3333, 23);
+        assertTrue(21 == remainder);
+
+        Longs.reverse(longs);
+        UnsignedLongs.sort(longs, 2, 8);
+        join = UnsignedLongs.join("+", longs);
+        assertEquals("18446744073709551615+9+3+4+5+5+7+9+2+1", join);
+
+        UnsignedLongs.sort(longs);
+        join = UnsignedLongs.join("+", longs);
+        assertEquals("1+2+3+4+5+5+7+9+9+18446744073709551615", join);
+
+        UnsignedLongs.sortDescending(longs, 3, 9);
+        join = UnsignedLongs.join("+", longs);
+        assertEquals("1+2+3+9+9+7+5+5+4+18446744073709551615", join);
+
+        UnsignedLongs.sortDescending(longs);
+        join = UnsignedLongs.join("+", longs);
+        assertEquals("18446744073709551615+9+9+7+5+5+4+3+2+1", join);
+
+    }
+
+    private static void testUnsignedLong() {
+
+        assertEquals("-1", String.valueOf(UnsignedLongs.MAX_VALUE));
+        assertEquals("18446744073709551615", String.valueOf(UnsignedLong.MAX_VALUE));
+
+        assertTrue(UnsignedLong.ZERO.equals(UnsignedLong.valueOf(0)));
+
+        assertTrue(UnsignedLong.ONE.equals(UnsignedLong.valueOf(1)));
+
+        assertTrue(1 == UnsignedLong.ONE.compareTo(UnsignedLong.ZERO));
+
+        UnsignedLong unsignedLong = UnsignedLong.valueOf(783);
+        UnsignedLong unsignedLong2 = UnsignedLong.valueOf(8);
+        UnsignedLong dividedBy = unsignedLong.dividedBy(UnsignedLong.valueOf(9));
+        assertTrue(dividedBy.equals(UnsignedLong.valueOf(87)));
+
+        UnsignedLong minus = unsignedLong.minus(UnsignedLong.valueOf(3));
+        assertTrue(minus.equals(UnsignedLong.valueOf(780)));
+
     }
 
     private static void testLongs() {
@@ -93,8 +169,22 @@ public class Primitives {
 
         Longs.sortDescending(concat);
         join = Longs.join("-", concat);
-        System.out.println(join);
         assertEquals("10-9-9-8-7-6-5-5-4-3-2-1-0", join);
+
+        Converter<String, Long> stringConverter = Longs.stringConverter();
+        @Nullable Long convert = stringConverter.convert("8475397");
+        assertTrue(convert.equals(8475397L));
+
+        List<Byte> bytes = Bytes.asList(Longs.toByteArray(convert));
+        assertEquals("0,0,0,0,0,-127,83,5", joiner.appendTo(new StringBuilder(), bytes).toString());
+
+        @Nullable Long tryParse = Longs.tryParse("89834");
+        assertTrue(tryParse.equals(89834L));
+
+        @Nullable Long parse = Longs.tryParse("1010111", 2);
+        assertTrue(parse.equals(87L));
+        @Nullable Long parse2 = Longs.tryParse("78943", 2);
+        assertTrue(null == parse2);
     }
 
     private static void testUnsignedInts() {
