@@ -7,6 +7,7 @@ import com.google.common.primitives.*;
 import java.math.BigInteger;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -27,6 +28,9 @@ public class Primitives {
     private static final int[] intArray = {1,2,3,4,5,5,7,9,9};
     private static final int[] intArray2 = {0, 6, 8, 10};
 
+    private static final long[] longArray = {1,2,3,4,5,5,7,9,9};
+    private static final long[] longArray2 = {0, 6, 8, 10};
+
     public static void main(String[] args) {
         testBytes();
         testSignedBytes();
@@ -35,15 +39,113 @@ public class Primitives {
         testInts();
         testUnsignedInteger();
         testUnsignedInts();
+        testLongs();
+    }
+
+    private static void testLongs() {
+        assertTrue(8 == Longs.BYTES);
+
+//        System.out.println(Longs.MAX_POWER_OF_TWO);
+
+        long[] longs = Longs.toArray(Longs.asList(longArray));
+        long[] longs2 = Longs.toArray(Longs.asList(longArray2));
+
+        assertTrue(-1 == Longs.compare(3, 4));
+
+        long[] concat = Longs.concat(longs, longs2);
+        String join = Longs.join("-", concat);
+        assertEquals("1-2-3-4-5-5-7-9-9-0-6-8-10", join);
+
+        double aDouble = new Random().nextDouble()*10;
+        long x = (long)aDouble;
+        long constrainToRange = Longs.constrainToRange(x, 5, 9);
+        assertTrue(constrainToRange >= 5 && constrainToRange <= 9);
+
+        assertTrue(Longs.contains(longs, 4));
+
+        long[] ensureCapacity = Longs.ensureCapacity(longs, 10, 5);
+        assertTrue(15 == ensureCapacity.length);
+
+        long fromByteArray = Longs.fromByteArray(byteArray);
+        assertEquals("72623859790317321", String.valueOf(fromByteArray));
+
+        long fromBytes = Longs.fromBytes(byteArray2[0], byteArray2[1], byteArray2[2], byteArray2[3], byteArray[2], byteArray[3], byteArray[4], byteArray[6]);
+        assertEquals("1697688953554183", String.valueOf(fromBytes));
+
+        assertTrue(6 == Longs.indexOf(concat, 7));
+        assertTrue(7 == Longs.indexOf(concat, new long[]{9,9,0}));
+        assertTrue(8 == Longs.lastIndexOf(concat, 9));
+
+        assertTrue(10 == Longs.max(concat));
+        assertTrue(0 == Longs.min(concat));
+
+        Longs.reverse(concat, 3, 8);
+        join = Longs.join("-", concat);
+        assertEquals("1-2-3-9-7-5-5-4-9-0-6-8-10", join);
+
+        Longs.reverse(concat);
+        join = Longs.join("-", concat);
+        assertEquals("10-8-6-0-9-4-5-5-7-9-3-2-1", join);
+
+        Longs.sortDescending(concat, 3,6);
+        join = Longs.join("-", concat);
+        assertEquals("10-8-6-9-4-0-5-5-7-9-3-2-1", join);
+
+        Longs.sortDescending(concat);
+        join = Longs.join("-", concat);
+        System.out.println(join);
+        assertEquals("10-9-9-8-7-6-5-5-4-3-2-1-0", join);
     }
 
     private static void testUnsignedInts() {
+
+        String join = UnsignedInts.join("^", intArray);
+        assertEquals("1^2^3^4^5^5^7^9^9", join);
+
         int checkedCast = UnsignedInts.checkedCast(77L);
         assertTrue(checkedCast == 77);
 
         assertTrue(-1 == UnsignedInts.compare(4, 6));
 
         assertTrue(UnsignedInts.decode("4") == 4);
+
+        assertTrue(3 == UnsignedInts.divide(33, 11));
+
+        Comparator<int[]> comparator = UnsignedInts.lexicographicalComparator();
+        assertTrue(1 == comparator.compare(intArray, intArray2));
+
+        int max = UnsignedInts.max(intArray);
+        assertTrue(max == 9);
+
+        int min = UnsignedInts.min(intArray2);
+        assertTrue(0 == min);
+
+        //返回给定十进制字符串表示的无符号int值
+        int parseUnsignedInt = UnsignedInts.parseUnsignedInt("32");
+        assertTrue(32  == parseUnsignedInt);
+
+        int parseUnsignedInt1 = UnsignedInts.parseUnsignedInt("645456", 8);
+        assertTrue(215854 == parseUnsignedInt1);
+
+        //求余
+        int remainder = UnsignedInts.remainder(44, 12);
+        assertTrue(8 == remainder);
+
+        int saturatedCast = UnsignedInts.saturatedCast(2332323243L);
+        assertTrue(-1962644053 == saturatedCast);
+
+        UnsignedInts.sort(intArray);
+        join = UnsignedInts.join("_", intArray);
+        assertEquals("1_2_3_4_5_5_7_9_9", join);
+
+        int[] ints = Ints.toArray(Ints.asList(intArray));
+        UnsignedInts.sortDescending(ints);
+        join = UnsignedInts.join("*", ints);
+        assertEquals("9*9*7*5*5*4*3*2*1", join);
+
+        assertEquals("734534589", UnsignedInts.toString(734534589));
+
+        assertEquals("101001000000000111001", UnsignedInts.toString(1343545, 2));
     }
 
     private static void testUnsignedInteger() {
