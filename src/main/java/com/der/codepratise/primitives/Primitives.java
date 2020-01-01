@@ -12,6 +12,7 @@ import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author K0790016
@@ -32,6 +33,9 @@ public class Primitives {
     private static final long[] longArray = {1,2,3,4,5,5,7,9,9};
     private static final long[] longArray2 = {0, 6, 8, 10};
 
+    private static final float[] floatArray = {1,2,3,4,5,5,7,9,9};
+    private static final float[] floatArray2 = {0, 6, 8, 10};
+
     public static void main(String[] args) {
         testBytes();
         testSignedBytes();
@@ -48,6 +52,67 @@ public class Primitives {
 
     private static void testFloats() {
         assertTrue(4 == Floats.BYTES);
+
+        float[] floats = Floats.toArray(Floats.asList(floatArray));
+        float[] floats2 = Floats.toArray(Floats.asList(floatArray2));
+
+        assertTrue(1 == Floats.compare(3, 2));
+
+        float[] concat = Floats.concat(floats, floats2);
+        String join = Floats.join("@", concat);
+        assertEquals("1.0@2.0@3.0@4.0@5.0@5.0@7.0@9.0@9.0@0.0@6.0@8.0@10.0", join);
+
+        float aFloat = new Random().nextFloat() * 10;
+        float constrainToRange = Floats.constrainToRange(aFloat, 5, 9);
+        assertTrue(constrainToRange >= 5 && constrainToRange <= 9);
+
+        assertTrue(Floats.contains(concat, 8));
+
+        float[] ensureCapacity = Floats.ensureCapacity(floats, 10, 5);
+        assertTrue(0 == ensureCapacity[ensureCapacity.length-1]);
+
+        assertTrue(4 == Floats.indexOf(floats, 5));
+
+        assertTrue(6 == Floats.indexOf(floats, new float[]{7,9,9}));
+
+        assertTrue(6 == Floats.lastIndexOf(floats, 7));
+
+        //是否不为无限数
+        assertFalse(Floats.isFinite(1f/0f));
+        assertTrue(Floats.isFinite(4f));
+
+        Comparator<float[]> comparator = Floats.lexicographicalComparator();
+        int compare = comparator.compare(concat, floats2);
+        assertTrue(1 == compare);
+
+        assertTrue(10f == Floats.max(concat));
+        assertTrue(0f == Floats.min(concat));
+
+        Floats.reverse(floats, 3, 7);
+        join = Floats.join("`", floats);
+        assertEquals("1.0`2.0`3.0`7.0`5.0`5.0`4.0`9.0`9.0", join);
+
+        Floats.reverse(floats);
+        join = Floats.join("`", floats);
+        assertEquals("9.0`9.0`4.0`5.0`5.0`7.0`3.0`2.0`1.0", join);
+
+        Floats.sortDescending(floats, 3, 8);
+        join = Floats.join("`", floats);
+        assertEquals("9.0`9.0`4.0`7.0`5.0`5.0`3.0`2.0`1.0", join);
+
+        Floats.sortDescending(floats);
+        join = Floats.join("`", floats);
+        assertEquals("9.0`9.0`7.0`5.0`5.0`4.0`3.0`2.0`1.0", join);
+
+        Converter<String, Float> stringConverter = Floats.stringConverter();
+        @Nullable Float convert = stringConverter.convert("434334");
+        assertTrue(434334f == convert);
+
+        @Nullable Float tryParse = Floats.tryParse("434");
+        assertTrue(434f == tryParse.floatValue());
+
+        @Nullable Float tryParse1 = Floats.tryParse("sfd");
+        assertTrue(null == tryParse1);
     }
 
     private static void testUnsignedLongs() {
