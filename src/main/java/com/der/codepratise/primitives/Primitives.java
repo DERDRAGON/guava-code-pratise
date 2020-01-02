@@ -10,9 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 /**
  * @author K0790016
@@ -36,6 +34,9 @@ public class Primitives {
     private static final float[] floatArray = {1,2,3,4,5,5,7,9,9};
     private static final float[] floatArray2 = {0, 6, 8, 10};
 
+    private static final double[] doubleArray = {1,2,3,4,5,5,7,9,9};
+    private static final double[] doubleArray2 = {0, 6, 8, 10};
+
     public static void main(String[] args) {
         testBytes();
         testSignedBytes();
@@ -48,6 +49,14 @@ public class Primitives {
         testUnsignedLong();
         testUnsignedLongs();
         testFloats();
+        testDoubles();
+    }
+
+    private static void testDoubles() {
+        assertTrue(8 == Doubles.BYTES);
+
+        double[] doubles = Doubles.toArray(Doubles.asList(doubleArray));
+        double[] doubles2 = Doubles.toArray(Doubles.asList(doubleArray2));
     }
 
     private static void testFloats() {
