@@ -37,6 +37,9 @@ public class Primitives {
     private static final double[] doubleArray = {1,2,3,4,5,5,7,9,9};
     private static final double[] doubleArray2 = {0, 6, 8, 10};
 
+    private static final char[] charArray = {1,2,3,4,5,5,7,9,9};
+    private static final char[] charArray2 = {0, 6, 8, 10};
+
     public static void main(String[] args) {
         testBytes();
         testSignedBytes();
@@ -50,6 +53,16 @@ public class Primitives {
         testUnsignedLongs();
         testFloats();
         testDoubles();
+        testChars();
+    }
+
+    private static void testChars() {
+        assertTrue(2 == Chars.BYTES);
+
+        char[] chars = Chars.toArray(Chars.asList(charArray));
+        char[] chars2 = Chars.toArray(Chars.asList(charArray2));
+
+        assertTrue(-1 == Chars.compare('5', '6'));
     }
 
     private static void testDoubles() {
@@ -57,6 +70,60 @@ public class Primitives {
 
         double[] doubles = Doubles.toArray(Doubles.asList(doubleArray));
         double[] doubles2 = Doubles.toArray(Doubles.asList(doubleArray2));
+
+        assertTrue(1 == Doubles.compare(5, 4));
+
+        double[] concat = Doubles.concat(doubles, doubles2);
+        String join = Doubles.join("^", concat);
+        assertEquals("1.0^2.0^3.0^4.0^5.0^5.0^7.0^9.0^9.0^0.0^6.0^8.0^10.0", join);
+
+        double v = new Random().nextDouble() * 10;
+        double constrainToRange = Doubles.constrainToRange(v, 5, 9);
+        assertTrue(constrainToRange >= 5 && constrainToRange <= 9);
+
+        assertTrue(Doubles.contains(doubles, 5));
+
+        double[] ensureCapacity = Doubles.ensureCapacity(doubles, 10, 5);
+        assertTrue(ensureCapacity.length == 15);
+        assertTrue(ensureCapacity[ensureCapacity.length-1] == 0);
+        assertTrue(6 == Doubles.indexOf(concat, 7));
+        assertTrue(6 == Doubles.indexOf(concat, new double[]{7,9,9}));
+
+        //是否无限大
+//        Doubles.isFinite()
+
+        assertTrue(12 == Doubles.lastIndexOf(concat, 10));
+        Comparator<double[]> comparator = Doubles.lexicographicalComparator();
+        assertTrue(1 == comparator.compare(doubles, doubles2));
+
+        assertTrue(10 == Doubles.max(concat));
+
+        assertTrue(0 == Doubles.min(concat));
+
+        Doubles.reverse(concat, 3, 8);
+        join = Doubles.join("$", concat);
+        assertEquals("1.0$2.0$3.0$9.0$7.0$5.0$5.0$4.0$9.0$0.0$6.0$8.0$10.0", join);
+
+        Doubles.reverse(concat);
+        join = Doubles.join("$", concat);
+        assertEquals("10.0$8.0$6.0$0.0$9.0$4.0$5.0$5.0$7.0$9.0$3.0$2.0$1.0", join);
+
+        Doubles.sortDescending(concat, 2,6);
+        join = Doubles.join("$", concat);
+        assertEquals("10.0$8.0$9.0$6.0$4.0$0.0$5.0$5.0$7.0$9.0$3.0$2.0$1.0", join);
+
+        Doubles.sortDescending(concat);
+        join = Doubles.join("$", concat);
+        assertEquals("10.0$9.0$9.0$8.0$7.0$6.0$5.0$5.0$4.0$3.0$2.0$1.0$0.0", join);
+
+        Converter<String, Double> stringDoubleConverter = Doubles.stringConverter();
+        assertTrue(33 == stringDoubleConverter.convert("33"));
+
+        @Nullable Double tryParse = Doubles.tryParse("994");
+        assertTrue(tryParse.doubleValue() == 994);
+
+        @Nullable Double tryParse1 = Doubles.tryParse("d");
+        assertTrue(null == tryParse1);
     }
 
     private static void testFloats() {
