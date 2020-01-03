@@ -37,8 +37,8 @@ public class Primitives {
     private static final double[] doubleArray = {1,2,3,4,5,5,7,9,9};
     private static final double[] doubleArray2 = {0, 6, 8, 10};
 
-    private static final char[] charArray = {1,2,3,4,5,5,7,9,9};
-    private static final char[] charArray2 = {0, 6, 8, 10};
+    private static final char[] charArray = {'a','b','c','c','d','e','f','g','h'};
+    private static final char[] charArray2 = {'A', 'B', 'C', 'D'};
 
     public static void main(String[] args) {
         testBytes();
@@ -54,6 +54,49 @@ public class Primitives {
         testFloats();
         testDoubles();
         testChars();
+        testBooleans();
+    }
+
+    private static void testBooleans() {
+        boolean[] booleans = Booleans.toArray(Booleans.asList(true, false, false, true));
+        boolean[] booleans2 = Booleans.toArray(Booleans.asList(true, false, false, false, true, false, true, true));
+
+        assertTrue(1 == Booleans.compare(true, false));
+
+        boolean[] concat = Booleans.concat(booleans, booleans2);
+        String join = Booleans.join("/", concat);
+        assertEquals("true/false/false/true/true/false/false/false/true/false/true/true", join);
+        assertTrue(concat.length == 12);
+
+        assertTrue(Booleans.contains(concat, true));
+
+        assertTrue(6 == Booleans.countTrue(concat));
+
+        boolean[] ensureCapacity = Booleans.ensureCapacity(concat, 15, 1);
+        assertFalse(ensureCapacity[15]);
+
+        Comparator<Boolean> falseFirst = Booleans.falseFirst();
+        assertTrue(1 == falseFirst.compare(true, false));
+
+        assertTrue(0 == Booleans.indexOf(concat, true));
+
+        assertTrue(2 == Booleans.indexOf(concat, new boolean[] {false, true, true}));
+
+        assertTrue(9 == Booleans.lastIndexOf(concat, false));
+
+        Comparator<boolean[]> comparator = Booleans.lexicographicalComparator();
+        assertTrue(1 == comparator.compare(booleans, booleans2));
+
+        Booleans.reverse(concat, 2,7);
+        join = Booleans.join("/", concat);
+        assertEquals("true/false/false/false/true/true/false/false/true/false/true/true", join);
+
+        Booleans.reverse(concat);
+        join = Booleans.join("/", concat);
+        assertEquals("true/true/false/true/false/false/true/true/false/false/false/true", join);
+
+        Comparator<Boolean> trueFirst = Booleans.trueFirst();
+        assertTrue(-1 == trueFirst.compare(true, false));
     }
 
     private static void testChars() {
@@ -63,6 +106,69 @@ public class Primitives {
         char[] chars2 = Chars.toArray(Chars.asList(charArray2));
 
         assertTrue(-1 == Chars.compare('5', '6'));
+
+        char checkedCast = Chars.checkedCast(65);
+        assertTrue('A' == checkedCast);
+
+        char[] concat = Chars.concat(chars, chars2);
+        String join = Chars.join("+", concat);
+        assertEquals("a+b+c+c+d+e+f+g+h+A+B+C+D", join);
+
+        char constrainToRange = Chars.constrainToRange('g', 'd', 'x');
+        assertTrue('g' == constrainToRange);
+
+        assertTrue(Chars.contains(concat, 'A'));
+
+        char[] ensureCapacity = Chars.ensureCapacity(concat, 18, 2);
+        assertTrue(ensureCapacity[16] == 0);
+
+        char fromByteArray = Chars.fromByteArray(byteArray);
+        assertTrue('Ă' == fromByteArray);
+
+        char fromBytes = Chars.fromBytes(byteArray2[3], byteArray2[1]);
+        assertTrue('ਆ' == fromBytes);
+
+        int indexOf = Chars.indexOf(concat, 'f');
+        assertTrue(6 == indexOf);
+
+        int indexOf1 = Chars.indexOf(concat, new char[]{'e', 'f'});
+        assertTrue(5 == indexOf1);
+
+        int lastIndexOf = Chars.lastIndexOf(concat, 'g');
+        assertTrue(7 == lastIndexOf);
+
+        Comparator<char[]> comparator = Chars.lexicographicalComparator();
+        int compare = comparator.compare(chars, chars2);
+        assertTrue(32 == compare);
+
+        assertTrue('h' == Chars.max(concat));
+
+        assertTrue('A' == Chars.min(concat));
+
+        Chars.reverse(concat, 4, 12);
+        join = Chars.join(",", concat);
+        assertEquals("a,b,c,c,C,B,A,h,g,f,e,d,D", join);
+
+        Chars.reverse(concat);
+        join = Chars.join(",", concat);
+        assertEquals("D,d,e,f,g,h,A,B,C,c,c,b,a", join);
+
+        //返回值中与值最接近的char。
+        char saturatedCast = Chars.saturatedCast(8444);
+        saturatedCast = Chars.saturatedCast(66);
+        assertTrue(saturatedCast == 'B');
+
+        Chars.sortDescending(concat, 3, 10);
+        join = Chars.join(",", concat);
+        assertEquals("D,d,e,h,g,f,c,C,B,A,c,b,a", join);
+
+        Chars.sortDescending(concat);
+        join = Chars.join(",", concat);
+        assertEquals("h,g,f,e,d,c,c,b,a,D,C,B,A", join);
+
+        List<Byte> bytes = Bytes.asList(Chars.toByteArray('A'));
+        join = joiner.join(bytes);
+        assertEquals("0,65", join);
     }
 
     private static void testDoubles() {
