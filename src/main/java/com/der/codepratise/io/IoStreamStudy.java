@@ -1,18 +1,21 @@
 package com.der.codepratise.io;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import com.google.common.io.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.*;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -38,9 +41,13 @@ public class IoStreamStudy {
         FILE_PATH = filePath.toString();
     }
 
+    private static String getFileFullName(String fileName) {
+        return FILE_PATH + fileName + FILE_SUFFIX;
+    }
+
     private static File getFile(String fileName){
         if (StringUtils.isNotBlank(fileName)) {
-            File file = new File(FILE_PATH + fileName + FILE_SUFFIX);
+            File file = new File(getFileFullName(fileName));
             if (file.exists())
                 return file;
             return createNewFile(fileName);
@@ -54,7 +61,7 @@ public class IoStreamStudy {
             if (StringUtils.isBlank(fileName)){
                 return null;
             }
-            File file = new File(FILE_PATH + fileName + FILE_SUFFIX);
+            File file = new File(getFileFullName(fileName));
             if (!file.exists()) {
                 file.createNewFile();
             }
@@ -168,14 +175,56 @@ public class IoStreamStudy {
          *
          * */
         Iterable<File> files = Files.fileTraverser().breadthFirst(new File(FILE_PATH));
-        files.forEach(System.out::println);
+//        files.forEach(System.out::println);
+        assertTrue(18 == Lists.newArrayList(files).size());
 
         Iterable<File> files1 = Files.fileTraverser().depthFirstPostOrder(new File(FILE_PATH));
-        files1.forEach(System.out::println);
+//        files1.forEach(System.out::println);
 
         Iterable<File> files2 = Files.fileTraverser().depthFirstPreOrder(new File(FILE_PATH));
-        files2.forEach(System.out::println);
+//        files2.forEach(System.out::println);
 
+        String fileExtension = Files.getFileExtension(getFileFullName("in7"));
+        assertEquals("txt", fileExtension);
+
+        String nameWithoutExtension = Files.getNameWithoutExtension(getFileFullName("in8"));
+        assertEquals(nameWithoutExtension, "in8");
+
+        assertTrue(Files.isFile().apply(getFile("in9")));
+
+        assertTrue(Files.isDirectory().apply(new File(FILE_PATH)));
+
+        try {
+            MappedByteBuffer mappedByteBuffer = Files.map(getFile("in7"));
+            assertTrue(mappedByteBuffer.isLoaded());
+        } catch (IOException e) {
+        }
+        try {
+            BufferedReader bufferedReader = Files.newReader(getFile("in8"), Charsets.UTF_8);
+            List<String> stringList = bufferedReader.lines().collect(Collectors.toList());
+            assertTrue(stringList.size() == 1);
+            bufferedReader.close();
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
+        }
+
+        try {
+            BufferedWriter bufferedWriter = Files.newWriter(getFile("in8"), Charsets.UTF_8);
+            bufferedWriter.write("来试试新的字符串");
+            bufferedWriter.close();
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
+        }
+
+        //全路径
+//        String simplifyPath = Files.simplifyPath(getFileFullName("in7"));
+
+        String str = "这是一段写入文件的字符串";
+        try {
+            Files.write(str.getBytes(Charsets.UTF_8), getFile("in9"));
+            Files.write(str, getFile("in9"), Charsets.UTF_8);
+        } catch (IOException e) {
+        }
     }
 
     private static void testCharStreams() {
