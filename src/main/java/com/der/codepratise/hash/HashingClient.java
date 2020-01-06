@@ -4,10 +4,10 @@ import com.der.codepratise.entity.MapInstanceEntity;
 import com.der.codepratise.entity.MapTestEntity;
 import com.der.codepratise.io.IoStreamStudy;
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import com.google.common.hash.*;
 
 import java.io.IOException;
-import java.util.stream.Collector;
 
 /**
  * @program: guava-code-pratise
@@ -18,6 +18,11 @@ import java.util.stream.Collector;
 public class HashingClient {
 
     public static void main(String[] args) {
+        testBloomFilter();
+        testHashing();
+    }
+
+    private static void testHashing() {
         HashFunction md5 = Hashing.md5();
         HashCode hashCode = md5.newHasher().putLong(2).putString("name", Charsets.UTF_8).putObject(new MapTestEntity(72, "234"), new Funnel<MapTestEntity>() {
             @Override
@@ -26,7 +31,20 @@ public class HashingClient {
                 into.putString(from.getName(), Charsets.UTF_8);
             }
         }).hash();
+        //把 bloom filter 的实现从 md5 切换到 murmur 时，速度提升了 800%。  --> https://github.com/bitly/dablooms/pull/19
+        Hasher hasher = Hashing.murmur3_128().newHasher();
 
+        //以有序方式组合哈希码，因此，如果从此方法获得的两个哈希相同，则很可能每个哈希都是以相同的顺序从相同的哈希计算得出的。
+        HashCode combineOrdered = Hashing.combineOrdered(Lists.newArrayList(hashCode));
+
+        //以无序方式组合哈希码，因此，如果从此方法获得的两个哈希相同，则很可能每个哈希都是以相同的顺序从相同的哈希计算得出的。
+        HashCode combineUnordered = Hashing.combineUnordered(Lists.newArrayList(combineOrdered, hashCode));
+
+        //为哈希码分配一个一致的“存储桶”，该存储桶随着存储桶数量的增加而使重新映射的需求降至最低。有关详细信息，请参见Wikipedia。
+        int consistentHash = Hashing.consistentHash(combineUnordered, 64);
+    }
+
+    private static void testBloomFilter() {
         BloomFilter<MapInstanceEntity> bloomFilter = BloomFilter.<MapInstanceEntity>create((from, into) -> {
             into.putInt(from.getId()).putBoolean(from.getSex()).putString(from.getName(), Charsets.UTF_8).putString(from.getDescription(), Charsets.UTF_8).putString(from.getFavouriteMoive(), Charsets.UTF_8);
         }, 5000, 0.001);
