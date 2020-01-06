@@ -39,6 +39,10 @@ public class IoStreamStudy {
         }
         filePath.append("/guava-code-pratise/file/");
         FILE_PATH = filePath.toString();
+        File file = new File(FILE_PATH);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
     }
 
     private static String getFileFullName(String fileName) {
