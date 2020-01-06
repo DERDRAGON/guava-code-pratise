@@ -33,7 +33,7 @@ public class IoStreamStudy {
     static {
         StringBuilder filePath = new StringBuilder();
         if (System.getProperties().getProperty("os.name").toUpperCase().indexOf("WINDOWS") != -1){
-            filePath.append("E:/ideaWorkspace");
+            filePath.append("E:/ideaworkspace");
         } else {
             filePath.append("/Library/idea_space");
         }
