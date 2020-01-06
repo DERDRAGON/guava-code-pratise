@@ -1,9 +1,14 @@
 package com.der.codepratise.Eventbus;
 
+import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import lombok.Getter;
+import lombok.Setter;
 
-import javax.swing.event.ChangeEvent;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * @program: guava-code-pratise
@@ -13,15 +18,41 @@ import javax.swing.event.ChangeEvent;
  */
 public class EventbusClient {
 
-    static class CustomerChangeEventListener {
-        @Subscribe
-        public void eventCustomChange(ChangeEvent e) {
-            System.out.println(e.getSource());
+    private List<ChangeEvent> changeEvents = Lists.newArrayList();
+
+    @Getter
+    @Setter
+    class ChangeEvent {
+        private String change;
+
+        public ChangeEvent(String change) {
+            this.change = change;
         }
     }
 
-    public static void main(String[] args) {
+    class CustomerChangeEventListener {
+        @Subscribe
+        public void eventCustomChange(ChangeEvent e) {
+            changeEvents.add(e);
+        }
+    }
+
+    private ChangeEvent getChangeEvent(){
+        return new ChangeEvent("一个事件:" + DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss S").format(LocalDateTime.now()));
+    }
+
+    public void addEvent() {
         EventBus eventBus = new EventBus();
         eventBus.register(new CustomerChangeEventListener());
+        eventBus.post(getChangeEvent());
+    }
+
+    /**
+     * see more visit http://ifeve.com/google-guava-eventbus/
+     * @param args 不定参
+     */
+    public static void main(String[] args) {
+        EventbusClient client = new EventbusClient();
+        client.addEvent();
     }
 }
