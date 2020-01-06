@@ -91,7 +91,7 @@ public class IoStreamStudy {
      * @param fileName 文件名称
      * @return InputStream
      */
-    private static InputStream getNewInputStreamFile(String fileName) {
+    public static InputStream getNewInputStreamFile(String fileName) {
         File file = createNewFile(fileName);
         if (null != file){
             try {
@@ -103,7 +103,7 @@ public class IoStreamStudy {
         return null;
     }
 
-    private static OutputStream getNewOutputStream(String fileName) {
+    public static OutputStream getNewOutputStream(String fileName) {
         File file = createNewFile(fileName);
         if (null != file) {
             try {
