@@ -1,3 +1,23 @@
+- [Multiset（多重集合）](#multiset%e5%a4%9a%e9%87%8d%e9%9b%86%e5%90%88)
+	- [`MultiSet`不是`Map`](#multiset%e4%b8%8d%e6%98%afmap)
+	- [实现](#%e5%ae%9e%e7%8e%b0)
+	- [`SortedMultiset`](#sortedmultiset)
+- [`MultiMap`（多重Map）](#multimap%e5%a4%9a%e9%87%8dmap)
+	- [修改](#%e4%bf%ae%e6%94%b9)
+	- [视图](#%e8%a7%86%e5%9b%be)
+	- [`Multimap`不是`Map`](#multimap%e4%b8%8d%e6%98%afmap)
+	- [实现](#%e5%ae%9e%e7%8e%b0-1)
+- [`BiMap`](#bimap)
+	- [实现](#%e5%ae%9e%e7%8e%b0-2)
+- [`Table`](#table)
+- [`ClassToInstanceMap`](#classtoinstancemap)
+- [`RangeSet`](#rangeset)
+	- [视图](#%e8%a7%86%e5%9b%be-1)
+	- [查询](#%e6%9f%a5%e8%af%a2)
+- [`RangeMap`](#rangemap)
+	- [视图](#%e8%a7%86%e5%9b%be-2)
+
+
 Guava引入了一些非常有用但JDK中没有的集合类型。这些新的集合类型并不是硬塞进JDK的集合框架中的，它们配合的非常好。
 
 # Multiset（多重集合）

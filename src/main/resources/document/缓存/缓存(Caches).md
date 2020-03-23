@@ -1,3 +1,23 @@
+- [示例](#%e7%a4%ba%e4%be%8b)
+- [应用场景](#%e5%ba%94%e7%94%a8%e5%9c%ba%e6%99%af)
+- [Population](#population)
+	- [从`CacheLoader`加载](#%e4%bb%8ecacheloader%e5%8a%a0%e8%bd%bd)
+	- [从`Callable`加载](#%e4%bb%8ecallable%e5%8a%a0%e8%bd%bd)
+	- [直接插入](#%e7%9b%b4%e6%8e%a5%e6%8f%92%e5%85%a5)
+- [回收](#%e5%9b%9e%e6%94%b6)
+- [基于内存占用大小的回收](#%e5%9f%ba%e4%ba%8e%e5%86%85%e5%ad%98%e5%8d%a0%e7%94%a8%e5%a4%a7%e5%b0%8f%e7%9a%84%e5%9b%9e%e6%94%b6)
+- [基于时间的回收](#%e5%9f%ba%e4%ba%8e%e6%97%b6%e9%97%b4%e7%9a%84%e5%9b%9e%e6%94%b6)
+	- [测试基于时间的回收](#%e6%b5%8b%e8%af%95%e5%9f%ba%e4%ba%8e%e6%97%b6%e9%97%b4%e7%9a%84%e5%9b%9e%e6%94%b6)
+- [基于引用的回收](#%e5%9f%ba%e4%ba%8e%e5%bc%95%e7%94%a8%e7%9a%84%e5%9b%9e%e6%94%b6)
+	- [显式的删除](#%e6%98%be%e5%bc%8f%e7%9a%84%e5%88%a0%e9%99%a4)
+	- [移除监听器](#%e7%a7%bb%e9%99%a4%e7%9b%91%e5%90%ac%e5%99%a8)
+	- [清理工作何时执行？](#%e6%b8%85%e7%90%86%e5%b7%a5%e4%bd%9c%e4%bd%95%e6%97%b6%e6%89%a7%e8%a1%8c)
+	- [刷新](#%e5%88%b7%e6%96%b0)
+- [功能](#%e5%8a%9f%e8%83%bd)
+	- [统计](#%e7%bb%9f%e8%ae%a1)
+	- [`asMap`](#asmap)
+- [中断](#%e4%b8%ad%e6%96%ad)
+
 # 示例
 ```
 LoadingCahce<Key, Graph> graphs = CacheBuilder.newBuilder()

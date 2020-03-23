@@ -1,3 +1,9 @@
+- [介绍](#%e4%bb%8b%e7%bb%8d)
+- [Forwarding装饰器](#forwarding%e8%a3%85%e9%a5%b0%e5%99%a8)
+- [`PeekingIterator`](#peekingiterator)
+- [`AbstractIterator`](#abstractiterator)
+- [`AbstractSequentialIterator`](#abstractsequentialiterator)
+
 # 介绍
 有时候你需要自己实现一些集合的扩展。在元素被添加到List的时候你可能需要添加一些特殊的行为，或者需要你一个支持数据库查询的`Iterable`。Guava为你同样也为我们自己提供了一系列的工具来简化这些操作。
 

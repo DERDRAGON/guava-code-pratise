@@ -1,3 +1,11 @@
+- [说明](#%e8%af%b4%e6%98%8e)
+- [`Function`和`Predicate`](#function%e5%92%8cpredicate)
+		- [特殊的`Predicate`](#%e7%89%b9%e6%ae%8a%e7%9a%84predicate)
+		- [`Function`和`Predicate`的操作](#function%e5%92%8cpredicate%e7%9a%84%e6%93%8d%e4%bd%9c)
+	- [使用](#%e4%bd%bf%e7%94%a8)
+		- [`Predicates`](#predicates)
+		- [`Functions`](#functions)
+
 # 说明
 直到Java7，Java中的函数式编程只能是使用笨拙的匿名内部类。这个将在Java8中改变，但Guava却能让Java5以上的用户实现函数式风格的编程。
 

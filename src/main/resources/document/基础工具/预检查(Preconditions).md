@@ -1,3 +1,5 @@
+- [Preconditions](#preconditions)
+
 # Preconditions
 Guava提供了一系列的预检查工具，我们强烈建议使用静态导入以便更方便的使用。每个方法都有3个不同的变体（重载）：
 

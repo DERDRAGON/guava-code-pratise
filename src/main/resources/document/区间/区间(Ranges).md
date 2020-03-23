@@ -1,3 +1,17 @@
+- [示例](#%e7%a4%ba%e4%be%8b)
+- [简介](#%e7%ae%80%e4%bb%8b)
+- [构建Range](#%e6%9e%84%e5%bb%barange)
+- [操作](#%e6%93%8d%e4%bd%9c)
+	- [查询操作](#%e6%9f%a5%e8%af%a2%e6%93%8d%e4%bd%9c)
+	- [区间操作](#%e5%8c%ba%e9%97%b4%e6%93%8d%e4%bd%9c)
+		- [`encloses`](#encloses)
+		- [`isConnected`](#isconnected)
+		- [`intersection`](#intersection)
+		- [`span`](#span)
+- [非连续区域](#%e9%9d%9e%e8%bf%9e%e7%bb%ad%e5%8c%ba%e5%9f%9f)
+	- [自定义非连续区域](#%e8%87%aa%e5%ae%9a%e4%b9%89%e9%9d%9e%e8%bf%9e%e7%bb%ad%e5%8c%ba%e5%9f%9f)
+	- [如果需要一个`Comparator`该怎么做？](#%e5%a6%82%e6%9e%9c%e9%9c%80%e8%a6%81%e4%b8%80%e4%b8%aacomparator%e8%af%a5%e6%80%8e%e4%b9%88%e5%81%9a)
+
 ## 示例
 ```java
 List<Double> scores;

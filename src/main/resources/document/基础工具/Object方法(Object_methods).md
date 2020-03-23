@@ -1,3 +1,9 @@
+- [Object 常用方法](#object-%e5%b8%b8%e7%94%a8%e6%96%b9%e6%b3%95)
+	- [equals](#equals)
+	- [hashCode](#hashcode)
+	- [toString](#tostring)
+	- [compare/compareTo](#comparecompareto)
+
 #  Object 常用方法
 ## equals
 如果一个对象的属性可能为null，实现`Object.equals()`就有点麻烦了，因为要单独的检查null的情况。使用`Objects.equal()`可以在可能为null的情况下执行equals判断而不抛出NullPointerException。

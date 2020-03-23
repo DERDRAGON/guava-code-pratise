@@ -1,3 +1,11 @@
+- [`Joiner`](#joiner)
+- [`Splitter`](#splitter)
+- [`CharMatcher`](#charmatcher)
+	- [获取`CharMatcher`](#%e8%8e%b7%e5%8f%96charmatcher)
+	- [使用`CharMatcher`](#%e4%bd%bf%e7%94%a8charmatcher)
+- [`Charsets`](#charsets)
+- [`CaseFormat`](#caseformat)
+
 # `Joiner`
 将一个字符串序列用一个分隔符连接起来还是比较棘手的 — 但不应该是这样。如果序列包含null就更困难了，流式风格的`Joiner`让这一切变得简单起来。
 
