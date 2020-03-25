@@ -1,5 +1,6 @@
 package com.der.codepratise.entity;
 
+import com.google.common.collect.ComparisonChain;
 import lombok.Data;
 
 /**
@@ -24,6 +25,6 @@ public class Book implements Comparable {
     @Override
     public int compareTo(Object o) {
         Book other = (Book) o;
-        return id - other.getId();
+        return ComparisonChain.start().compare(id, other.getId()).compare(name, other.getName()).result();
     }
 }

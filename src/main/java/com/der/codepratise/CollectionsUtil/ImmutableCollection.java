@@ -1,15 +1,14 @@
 package com.der.codepratise.CollectionsUtil;
 
+import com.alibaba.fastjson.JSON;
 import com.der.codepratise.entity.Book;
 import com.google.common.collect.*;
 import com.google.common.primitives.Ints;
 import org.junit.Assert;
 
 import java.awt.*;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -54,6 +53,7 @@ public class ImmutableCollection {
         ImmutableMap<String, Object> immutableMap1 = ImmutableMap.<String, Object>of("id", 321, "name", "宝剑锋从磨砺出", "description", "梅花香自苦寒来");
         Assert.assertEquals("{id=321, name=宝剑锋从磨砺出, description=梅花香自苦寒来}", immutableMap1.toString());
 
+        //使用builderWithExpectedSize指定数量性能会好
         ImmutableMap<String, Object> immutableMap2 = ImmutableMap.<String, Object>builderWithExpectedSize(3).putAll(maps).build();
         Assert.assertEquals("{name=天行健，君子以自强不息, description=地势坤，君子以厚德载物, id=123}", immutableMap2.toString());
 
@@ -63,7 +63,7 @@ public class ImmutableCollection {
         ImmutableMultimap<String, Object> immutableMultimap1 = ImmutableMultimap.<String, Object>of("id", 123, "id", 234, "name", "噫吁戏危乎高哉", "name", "尔来四万八千瑞", "description", "不与秦塞通人烟");
         ImmutableMultimap<Object, String> inverse = immutableMultimap1.inverse();
         Assert.assertTrue(new Integer(5).equals(inverse.keys().size()));
-        System.out.println(inverse.toString());
+        Assert.assertEquals("{123=[id], 234=[id], 噫吁戏危乎高哉=[name], 尔来四万八千瑞=[name], 不与秦塞通人烟=[description]}", inverse.toString());
     }
 
     private static void testImmutableSet() {
@@ -126,5 +126,12 @@ public class ImmutableCollection {
         Assert.assertFalse(Arrays.equals(immutableList3.toArray(), immutableList4.toArray()));
         ImmutableList<Integer> immutableList5 = ImmutableList.<Integer>sortedCopyOf(ImmutableCollection.integers);
         Assert.assertTrue(natural.isOrdered(immutableList5));
+
+        //        Defensive Copies，保护性拷贝。
+        List<Integer> list1 = org.assertj.core.util.Lists.newArrayList(2,3,5,7,8);
+        List<Integer> unmodifiableList = Collections.unmodifiableList(list1);
+        System.out.println(JSON.toJSONString(unmodifiableList));
+        list1.add(44);  //-- java.lang.UnsupportedOperationException
+        System.out.println(JSON.toJSONString(unmodifiableList));
     }
 }

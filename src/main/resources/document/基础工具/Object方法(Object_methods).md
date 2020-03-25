@@ -5,7 +5,7 @@
 	- [compare/compareTo](#comparecompareto)
 
 #  Object 常用方法
-## equals
+## ~~equals~~
 如果一个对象的属性可能为null，实现`Object.equals()`就有点麻烦了，因为要单独的检查null的情况。使用`Objects.equal()`可以在可能为null的情况下执行equals判断而不抛出NullPointerException。
 
 ```java
@@ -16,7 +16,7 @@ Objects.equal(null, null); //true
 ```
 注意：JDK7新增`Objects`类提供了功能类似的`Objects.equals()`方法
 
-## hashCode
+## ~~hashCode~~
 更简单的对所有属性进行hash计算。Guava的`Objects.hashCode(Object...)`根据属性顺序创建一个顺序敏感的hash计算。使用`Objects.hashCode(f1,f2,...fn)`来替代手工构建。
 
 注意：JDK7新增的`Objects`类提供了功能类似的`Objects.hash(Object...)`方法。

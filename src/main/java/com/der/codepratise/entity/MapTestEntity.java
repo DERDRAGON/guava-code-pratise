@@ -50,9 +50,9 @@ public class MapTestEntity implements Comparable<MapTestEntity> {
 
     @Override
     public int hashCode() {
-        if (id < 2) {
-            return Hashing.murmur3_128().newHasher().putInt(id).putBoolean(sex).putString(name, Charsets.UTF_8).putString(description, Charsets.UTF_8).hash().hashCode();
-        }
+//        if (id < 2) {
+//            return Hashing.murmur3_128().newHasher().putInt(id).putBoolean(sex).putString(name, Charsets.UTF_8).putString(description, Charsets.UTF_8).hash().hashCode();
+//        }
         return Objects.hash(id, name, sex, description);
     }
 }

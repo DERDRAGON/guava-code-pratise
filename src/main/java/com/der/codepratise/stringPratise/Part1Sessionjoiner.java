@@ -218,6 +218,9 @@ public class Part1Sessionjoiner {
         Assert.assertTrue(Integer.valueOf(8).equals(toList2.size()));
         Assert.assertTrue(Integer.valueOf(1).equals(toList2.get(7).length()));
 
+        List<String> strings = splitter3.splitToList("");
+        System.out.println(JSON.toJSONString(strings));
+
     }
 
     private static void testJoiner() {
@@ -246,6 +249,7 @@ public class Part1Sessionjoiner {
                         "MapTestEntity(id=12, name=twelve, sex=null, description=null); MapTestEntity(id=13, name=thirteen, sex=null, description=null); " +
                         "MapTestEntity(id=14, name=fourteen, sex=null, description=null); MapTestEntity(id=15, name=fitteen, sex=null, description=null)",
                 joiner.appendTo(new StringBuilder("begin: "), list).toString());
+
 
         Assert.assertEquals("ko: MapTestEntity(id=6, name=six, sex=null, description=null); MapTestEntity(id=7, name=seven, sex=null, description=null); MapTestEntity(id=11, name=eleven, sex=null, description=null)",
                 joiner.appendTo(new StringBuilder("ko: "), list.get(0), list.get(1), list.get(5)).toString());

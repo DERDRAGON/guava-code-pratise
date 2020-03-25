@@ -1,5 +1,6 @@
 package com.der.codepratise.CollectionsUtil;
 
+import com.alibaba.fastjson.JSON;
 import com.der.codepratise.entity.MapInstanceEntity;
 import com.der.codepratise.entity.MapTestEntity;
 import com.google.common.collect.*;
@@ -82,13 +83,19 @@ public class NewCollectionTypes {
 
     }
 
+    /**
+     * 泛型为键，对象为值
+     */
     private static void testClassToInstanceMap() {
         MutableClassToInstanceMap<MapTestEntity> mapTestEntityMutableClassToInstanceMap = MutableClassToInstanceMap.<MapTestEntity>create();
         MapTestEntity testEntity = new MapTestEntity(22, "twenty twe");
         mapTestEntityMutableClassToInstanceMap.putInstance(MapTestEntity.class, testEntity);
         mapTestEntityMutableClassToInstanceMap.putInstance(MapTestEntity.class, new MapTestEntity(23, "twenty three"));
+        mapTestEntityMutableClassToInstanceMap.putInstance(MapInstanceEntity.class, new MapInstanceEntity(23, "twenty three","33"));
         MapTestEntity instance = mapTestEntityMutableClassToInstanceMap.getInstance(MapTestEntity.class);
+        MapTestEntity instance2 = mapTestEntityMutableClassToInstanceMap.getInstance(MapInstanceEntity.class);
         Assert.assertEquals("MapTestEntity(id=23, name=twenty three, sex=null, description=null)", instance.toString());
+        Assert.assertEquals("MapInstanceEntity(favouriteMoive=33)", instance2.toString());
 
         mapTestEntityMutableClassToInstanceMap.put(MapInstanceEntity.class, new MapInstanceEntity(24, "twenty four", "肖申克的救赎"));
         Assert.assertTrue(new Integer(2).equals(mapTestEntityMutableClassToInstanceMap.size()));
@@ -97,6 +104,9 @@ public class NewCollectionTypes {
         Assert.assertTrue(immutableClassToInstanceMap.getInstance(MapTestEntity.class).equals(mapTestEntityMutableClassToInstanceMap.getInstance(MapTestEntity.class)));
     }
 
+    /**
+     * 二维数组，对应坐标值为对象
+     */
     private static void testTable() {
         Table<Integer, Integer, MapTestEntity> hashBasedTable = HashBasedTable.<Integer, Integer, MapTestEntity>create();
         hashBasedTable.put(0, 0, new MapTestEntity(0, "zero"));
@@ -308,10 +318,5 @@ public class NewCollectionTypes {
         Multiset<MapTestEntity> toImmutableMultiset = list.stream().filter(mapTestEntity -> mapTestEntity.getId() != null).collect(ImmutableMultiset.toImmutableMultiset());
         Assert.assertTrue(new Integer(10).equals(toImmutableMultiset.size()));
 
-        //        Defensive Copies，保护性拷贝。
-//        List<Integer> unmodifiableList = Collections.unmodifiableList(list);
-//        System.out.println(JSON.toJSONString(unmodifiableList));
-//        list.add(44);  -- java.lang.UnsupportedOperationException
-//        System.out.println(JSON.toJSONString(unmodifiableList));
     }
 }

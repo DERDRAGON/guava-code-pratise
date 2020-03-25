@@ -18,7 +18,7 @@ com.google.util.concurrent中提供了更多的非常有用的特性，来帮助
 - Monitor类作为一个互斥锁，确保串行访问我们代码中定义的区域，就像synchronized关键字一样，但是在语义上更容易理解，并包含一些有用的附加功能。
 - ListenableFuture类，和Java中的一些监听类作用相似，在并发编程中， 我们可以通过注册一个回调函数，在Future完成后执行。
 - FutureCallback类，能够帮助我们接收Future任务返回的结果，允许我们处理失败或成功的场景。
-- SettableFuture、AsyncFunction和FutureFallback类，有用的实用程序类，我们可以在处理Future实例和Future做异步转换对象的时候使用。
+- SettableFuture、AsyncFunction和~~FutureFallback~~类，有用的实用程序类，我们可以在处理Future实例和Future做异步转换对象的时候使用。
 - Futures类提供了许多有用的静态方法用于处理Future实例。
 - RateLimiter类用于限制线程访问资源的频率，它很像信号量的限制，但实质是限制线程的数量，RateLimiter类限制基于时间的访问。
 

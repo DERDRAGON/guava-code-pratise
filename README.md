@@ -30,7 +30,7 @@ guava-libraries 用户指南中文翻译（值此翻译时，Guava的版本为17
 - [函数式风格(Functional Idioms)](src/main/resources/document/函数式风格/函数式风格(Functional Idioms).md)
 
 ### 并发(Concurrency)
-
+-  [并发](src/main/resources/document/并发/ListenableFuture.md)
 
 ### 字符串(Strings)
 - [字符串(Strings)](src/main/resources/document/字符串/字符串(Strings).md)
